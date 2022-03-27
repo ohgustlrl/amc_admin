@@ -226,15 +226,6 @@ export default {
 
   methods: {
     initialize () {
-      // for (let i = 1; i <= 100; i++) {
-      //   this.memberList.push({
-      //     nickname: '현시기',
-      //     sex: '남',
-      //     age: 37,
-      //     steamid: 'ohgustlrl',
-      //     kakaoid: 'fps_tjr',
-      //   })
-      // }
       this.memberList.push({
           nickname: '현시기',
           sex: '남',
@@ -335,7 +326,7 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
-        Object.assign(this.memberList[this.editedIndex], this.editedItem)
+        this.memberList = Object.assign(this.memberList[this.editedIndex], this.editedItem)
       } else {
         this.memberList.push(this.editedItem)
       }
