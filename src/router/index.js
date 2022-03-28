@@ -5,6 +5,7 @@ import Memberlist from '../views/Memberlist.vue'
 import Record from '../views/Memberlist.vue'
 import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
+import Signin from '../views/Signin.vue'
 
 
 
@@ -35,7 +36,12 @@ const routes = [
     path: '/meetinglog',
     name: 'meetinglog',
     component: Meetinglog
-  }
+  },
+  {
+    path: '/signin',
+    name: 'signin',
+    component: Signin
+  },
 ]
 
 const router = new VueRouter({

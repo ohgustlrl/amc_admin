@@ -17,7 +17,7 @@
       </v-avatar>
       <v-spacer />
 
-      <v-btn icon>
+      <v-btn icon :to="{ path: '/signin' }">
         <v-icon>mdi-login</v-icon>
       </v-btn>
     </v-app-bar>

@@ -172,7 +172,6 @@ export default {
     return {
       dialog: false,
       dialogDelete: false,
-      loading: true,
       search: '',
       headers: [
         {

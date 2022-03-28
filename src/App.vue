@@ -30,6 +30,10 @@ export default {
 }
 
 .container {
-  margin: 10vh 0;
+  margin-top: 10vh;
+}
+
+.v-application--wrap {
+  align-items: center;
 }
 </style>
