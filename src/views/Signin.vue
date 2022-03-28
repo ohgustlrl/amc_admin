@@ -12,7 +12,7 @@
       </v-card-text>
       <v-divider></v-divider>
         <v-container class="d-flex justify-center">
-          <div class="g-signin2" id="google-signin-btn" data-onsuccess="onsSignIn"></div>
+          <div class="g-signin2" id="google-signin-btn" data-onsuccess="onSignIn"></div>
         </v-container>
     </v-card>
   </div>
@@ -25,7 +25,7 @@ export default {
   name: "Sign-in",
 
   props: {
-    msg: String
+    msg : String
   },
   created() {
     window.onSignIn = this.onSignIn;
