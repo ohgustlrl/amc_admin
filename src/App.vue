@@ -12,6 +12,7 @@ import AppBar from './components/Appbar.vue'
 import Footer from './components/Footer.vue'
 
 export default {
+  name: 'AMC ADMIN',
   
   components: {
     AppBar,

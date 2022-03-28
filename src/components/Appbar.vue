@@ -17,9 +17,52 @@
       </v-avatar>
       <v-spacer />
 
-      <v-btn icon :to="{ path: '/signin' }">
-        <v-icon>mdi-login</v-icon>
-      </v-btn>
+      <v-menu 
+        transition="slide-y-transition"
+        bottom
+        :offset-y="offset"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon 
+          v-bind="attrs"
+          v-on="on">
+            <v-icon>mdi-account</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
+            <v-list-item-title class="text-h6">
+              LOG IN
+            </v-list-item-title>
+          </v-list-item>  
+          <v-divider />
+          <v-list nav>
+            <v-list-item-group>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-btn
+                    small
+                    elevation="2"
+                    rounded
+                    color="primary"
+                    dark
+                    @click="google"
+                  >
+                    <v-icon
+                      left
+                      dark
+                    >
+                      mdi-google
+                    </v-icon>
+                    with Google
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-list>
+      </v-menu>
+      
     </v-app-bar>
     <v-navigation-drawer
       v-model="drawer"
@@ -74,6 +117,7 @@
           { text: "일정", path: "/scheduler" },
           { text: "회의록", path: "/meetinglog" },
         ],
+        offset: true,
       }
     }
   }
