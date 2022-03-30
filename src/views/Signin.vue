@@ -42,25 +42,7 @@ export default {
   },
 
   methods: {
-    async google() {
-      const provider = new this.$firebase.auth.googleAuthProvider();
-      this.$firebase.auth().languageCode = "korean";
-      this.loading = true;
-      try {
-        const snapshot = await this.$firebase.auth().signInWithPopup(provider);
-        this.$store.commit("setFireUser", snapshot.user);
-      } 
-      catch(e) {
-        console.error(e.message)
-        console.log("ERROR!")
-      }
-      finally {
-        this.loading = false;
-      }
-    },
-    signOut() {
-      this.$firebase.auth().signOut();
-    },
+    
   },
 }
 </script>

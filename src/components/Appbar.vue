@@ -26,7 +26,8 @@
           <v-btn icon 
           v-bind="attrs"
           v-on="on">
-            <v-icon>mdi-account</v-icon>
+            <v-icon v-if="user === undefined"> mdi-account</v-icon>
+            <v-img v-if="user = !undefined" :src="userImage"></v-img>
           </v-btn>
         </template>
         <v-list>
@@ -46,7 +47,7 @@
                     rounded
                     color="primary"
                     dark
-                    @click="google"
+                    @click="clickToLogin"
                   >
                     <v-icon
                       left
@@ -55,6 +56,30 @@
                       mdi-google
                     </v-icon>
                     with Google
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+          <v-list nav v-show="user = !undefined">
+            <v-list-item-group>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-btn
+                    small
+                    elevation="2"
+                    rounded
+                    color="error"
+                    dark
+                    @click="clickToLogout"
+                  >
+                    <v-icon
+                      left
+                      dark
+                    >
+                      mdi-google
+                    </v-icon>
+                    Log Out
                   </v-btn>
                 </v-list-item-content>
               </v-list-item>
@@ -104,12 +129,20 @@
 </template>
 
 <script>
+import firebase from '@/plugins/firebase'
+import {getAuth, signInWithPopup, GoogleAuthProvider} from 'firebase/auth'
+import "firebase/compat/auth"
+import "firebase/compat/firestore"
+
   export default {
     name: 'AppBar',
 
     data() {
       return {
+        offset: true,
         drawer: false,
+        user: undefined,
+        userImage: '',
         items: [
           { text: "홈", path: "/home" },
           { text: "클랜원 목록", path: "/memberlist" },
@@ -117,8 +150,23 @@
           { text: "일정", path: "/scheduler" },
           { text: "회의록", path: "/meetinglog" },
         ],
-        offset: true,
       }
-    }
+    },
+    methods: {
+      clickToLogin() {
+        firebase;
+        const provider = new GoogleAuthProvider();
+        const auth = getAuth();
+        
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            this.user = result.user; // 로그인 성공
+            this.userImage = result.user.photoURL // 로그인 사용자의 이미지
+          })
+          .catch((err) => {
+            console.log(err)
+          })    
+      },
+    },
   }
 </script>
