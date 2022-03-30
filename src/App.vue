@@ -31,7 +31,7 @@ export default {
 }
 
 .container {
-  margin-top: 10vh;
+  margin: 10vh 0;
 }
 
 .v-application--wrap {
