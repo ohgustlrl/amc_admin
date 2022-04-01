@@ -17,7 +17,9 @@ export default {
   components: {
     AppBar,
     Footer,
-  }
+  },
+  methods: {},
+  
 }
 </script>
 

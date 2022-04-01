@@ -6,7 +6,7 @@
       fixed
       height="78"
     >
-      <v-app-bar-nav-icon @click.stop="[(drawer = !drawer)]" />
+      <v-app-bar-nav-icon @click.stop="onToggle"/>
       <v-avatar
         size="50"
       >
@@ -16,63 +16,65 @@
         >
       </v-avatar>
       <v-spacer />
-
       <!-- 앱바 로그인 메뉴 시작-->
       <v-menu 
         transition="slide-y-transition"
         bottom
-        :offset-y="offset"
+        max-width="15vw"
       >
         <template v-slot:activator="{ on, attrs }">
+          <v-progress-circular
+              indeterminate
+              color="primary"
+              v-show="$store.state.loading === true"
+          ></v-progress-circular>
           <v-btn 
             icon 
             v-bind="attrs"
             v-on="on"
           >
-            <v-icon v-if="memberName === undefined">mdi-account</v-icon>
+            <v-icon v-if="$store.state.userInfo === undefined" :class="isHide ? 'd-none' : ''">mdi-account</v-icon>
             <v-img
-              :src="userImage" 
+              :src="$store.state.userInfo.photoURL" 
               absolute
               v-else
+              style="border-radius : 50%"
             >
             </v-img>
           </v-btn>
         </template>
-        <v-list v-if="memberName === undefined">
+        <v-list v-if="$store.state.userInfo === undefined">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>
-                반가워요:)
+                어라???
               </v-list-item-title>
               <v-list-item-subtitle>
-                아직 로그인을 안하셨네요?
+                아직 로그인을
+              </v-list-item-subtitle>
+              <v-list-item-subtitle>
+                안하셨네요?
               </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>  
           <v-divider />
           <v-list nav>
-            <v-list-item-group>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-btn
-                    small
-                    elevation="2"
-                    rounded
-                    color="primary"
-                    dark
-                    @click="clickToLogin"
-                  >
-                    <v-icon
-                      left
-                      dark
-                    >
-                      mdi-google
-                    </v-icon>
-                    구글 로그인
-                  </v-btn>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
+            <v-btn
+              small
+              elevation="2"
+              rounded
+              color="primary"
+              dark
+              @click="clickToLogin"
+            >
+              <v-icon
+                left
+                dark
+              >
+                mdi-google
+              </v-icon>
+              구글 로그인
+            </v-btn>
           </v-list>
         </v-list>
         <v-list v-else>
@@ -82,75 +84,34 @@
                 반가워요:)
               </v-list-item-title>
               <v-list-item-subtitle>
-                {{ memberName }}님
+                {{ $store.state.userInfo.displayName }}님
               </v-list-item-subtitle>
             </v-list-item-content> 
           </v-list-item>  
           <v-divider />
           <v-list nav>
-            <v-list-item-group>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-btn
-                    small
-                    elevation="2"
-                    rounded
-                    color="error"
-                    dark
-                    @click="clickToLogout"
-                  >
-                    <v-icon
-                      left
-                      dark
-                    >
-                      mdi-logout-variant
-                    </v-icon>
-                    로그아웃
-                  </v-btn>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
+            <v-btn
+              small
+              elevation="2"
+              rounded
+              color="error"
+              dark
+              @click="clickToLogout"
+            >
+              <v-icon
+                left
+                dark
+              >
+                mdi-logout-variant
+              </v-icon>
+              로그아웃
+            </v-btn>
           </v-list>
         </v-list>
       </v-menu>
       
     </v-app-bar>
-    <v-navigation-drawer
-      v-model="drawer"
-      width="300"
-      app
-      temporary
-    >
-      <v-list>
-        <v-list-item>
-          <v-list-item-avatar>
-            <v-img src="../assets/logo.jpg" />
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6">
-              AMC ADMIN
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              pubg apple mango clan admin
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-      <v-divider />
-      <v-list nav>
-        <v-list-item-group>
-          <v-list-item
-            v-for="(item, i) in items"
-            :key="i"
-            :to="{ path: items[i].path }"
-          >
-            <v-list-item-content>
-              <v-list-item-title v-text="item.text" />
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
+    <Leftdrawer></Leftdrawer>
   </div>
 </template>
 
@@ -158,30 +119,27 @@
 import firebase from '@/plugins/firebase'
 import 
 {
+  browserSessionPersistence,
   getAuth,
   GoogleAuthProvider, 
+  setPersistence, 
   signInWithPopup,
   signOut, 
 } from 'firebase/auth'
-
+import Leftdrawer from './Leftdrawer.vue'
 
   export default {
     name: 'AppBar',
 
     data() {
       return {
-        offset: true,
-        drawer: false,
-        memberName: undefined,
-        userImage: '',
-        items: [
-          { text: "홈", path: "/home" },
-          { text: "클랜원 목록", path: "/memberlist" },
-          { text: "전적검색", path: "/record" },
-          { text: "일정", path: "/scheduler" },
-          { text: "회의록", path: "/meetinglog" },
-        ],
+        isHide: false
       }
+    },
+    components: {
+      Leftdrawer
+    },
+    computed: {
     },
     methods: {
       //구글 OAUTH 로그인 한다. 
@@ -189,14 +147,21 @@ import
         firebase;
         const provider = new GoogleAuthProvider();
         const auth = getAuth();
-        auth.languageCode = 'ko';
+        auth.languageCode = 'korean';
+        this.isHide = true;
+        this.$store.commit('onloading')
         signInWithPopup(auth, provider)
           .then((result) => {
-            this.memberName = result.user.displayName;
-            this.userImage = result.user.photoURL;
+            let resultUserInfo = result.user;
+            this.$store.commit('setUserInfo', resultUserInfo)
           })
           .catch((err) => {
             console.log(err)
+          })
+          .finally(() => {
+            this.$store.commit('onloading')
+            setPersistence(auth, browserSessionPersistence)
+              .then(() => {})
           })
       },
 
@@ -205,11 +170,11 @@ import
         firebase;
         const auth = getAuth();
         signOut(auth).then(() => {
+          this.$store.commit('delUserInfo')
           console.log('정상적으로 로그아웃 되었습니다.')
-        }).catch((e) => {
-          console.log(e)
+        }).catch(() => {
         }).finally(() => {
-          this.clear()
+          this.isHide = false;
         })
       },
 
@@ -224,11 +189,9 @@ import
           } 
         })
       },
-      // 회원 정보를 초기화 한다.
-      clear() {
-        this.memberName = undefined;
-        this.userImage = '';
-      }  
+      onToggle() {
+        this.$store.commit('onToggleDrawer')
+      },
     }
   }
 </script>
@@ -237,4 +200,7 @@ import
  .v-responsive {
    position: absolute;
  }
+ .v-progress-circular {
+  margin: 1rem;
+}
 </style>

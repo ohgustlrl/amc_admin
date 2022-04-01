@@ -1,11 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Memberlist from '../views/Memberlist.vue'
-import Record from '../views/Memberlist.vue'
+import Memberlist from '../views/member/Memberlist.vue'
+import Record from '../views/member/Memberlist.vue'
 import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
-import Signin from '../views/Signin.vue'
 
 
 
@@ -33,14 +32,9 @@ const routes = [
     component: Scheduler
   },
   {
-    path: '/meetinglog',
-    name: 'meetinglog',
+    path: '/notice',
+    name: 'notice',
     component: Meetinglog
-  },
-  {
-    path: '/signin',
-    name: 'signin',
-    component: Signin
   },
 ]
 
