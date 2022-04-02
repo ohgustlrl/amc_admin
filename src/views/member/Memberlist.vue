@@ -13,7 +13,7 @@
       :headers="headers"
       :items="memberList"
       :search="search"
-      sort-by="nickname"
+      sort-by="name"
       class="elevation-1"
     >
       <template v-slot:top>
@@ -57,7 +57,7 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="editedItem.nickname"
+                        v-model="editedItem.name"
                         label="닉네임"
                       ></v-text-field>
                     </v-col>
@@ -89,16 +89,6 @@
                       <v-text-field
                         v-model="editedItem.steamid"
                         label="스팀 아이디"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-text-field
-                        v-model="editedItem.kakaoid"
-                        label="카카오 아이디"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -153,18 +143,16 @@
         </v-icon>
       </template>
       <template v-slot:no-data>
-        <v-btn
-          color="primary"
-          @click="initialize"
-        >
-          Reset
-        </v-btn>
+        데이터가 없습니다.
       </template>
     </v-data-table>
   </div>  
 </template>
 
 <script>
+import firebase from '@/plugins/firebase'
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
+
 export default {
   name: "Member-list",
 
@@ -174,33 +162,26 @@ export default {
       dialogDelete: false,
       search: '',
       headers: [
-        {
-          text: '닉네임',
-          align: 'end',
-          sortable: false,
-          value: 'nickname',
-        },
-        { text: '성별', align: 'end', value: 'sex' },
-        { text: '나이',  align: 'end', value: 'age' },
-        { text: '스팀 아이디', align: 'end', value: 'steamid' },
-        { text: '카카오 아이디', align: 'end',  value: 'kakaoid' },
-        { text: '수정/삭제', align: 'end',  value: 'actions', sortable: false },
+        { text: '번호', aligin: 'start', value: 'no'},
+        { text: '닉네임', align: 'start', value: 'name' },
+        { text: '성별', align: 'start', value: 'sex' },
+        { text: '나이',  align: 'start', value: 'age' },
+        { text: '스팀 아이디', align: 'start', value: 'steamid' },
+        { text: '수정/삭제', align: 'start',  value: 'actions', sortable: false },
       ],
       memberList: [],
       editedIndex: -1,
       editedItem: {
-        nickname: '',
+        name: '',
         sex: '',
         age: '',
         steamid: '',
-        kakaoid: '',
       },
       defaultItem: {
-        nickname: '',
+        name: '',
         sex: '',
         age: 0,
         steamid: '',
-        kakaoid: '',
       },
     };
   },
@@ -220,74 +201,19 @@ export default {
   },
 
   created() {
-    this.initialize()
+    this.getMembers()
+  },
+
+  mounted() {
   },
 
   methods: {
-    initialize () {
-      this.memberList.push({
-          nickname: '현시기',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '달콤',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '새콤',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '영이',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '프덕',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '현이',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '슬이',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '장그래',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },
-      {
-          nickname: '제티',
-          sex: '남',
-          age: 37,
-          steamid: 'ohgustlrl',
-          kakaoid: 'fps_tjr',
-      },)
+    async getMembers() {
+      const db = getFirestore(firebase)
+      const memberCol = collection(db, 'members');
+      const memberSnapShot = await getDocs(memberCol);
+      this.memberList = memberSnapShot.docs.map(doc => doc.data());
+      return this.memberList;
     },
 
     editItem (item) {

@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 # Fierbase Config
 firebaseConfig.js
+
+# etc
+*.xlsx
+*.csv
+memberlist_2110.json
+config.js
+import.js

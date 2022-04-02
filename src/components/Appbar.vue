@@ -18,9 +18,11 @@
       <v-spacer />
       <!-- 앱바 로그인 메뉴 시작-->
       <v-menu 
-        transition="slide-y-transition"
         bottom
-        max-width="15vw"
+        origin="center center"
+        transition="scale-transition"
+        max-width="60vw"
+        style="right: 12px !important;"
       >
         <template v-slot:activator="{ on, attrs }">
           <v-progress-circular
@@ -47,7 +49,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>
-                어라???
+                헐?
               </v-list-item-title>
               <v-list-item-subtitle>
                 아직 로그인을
@@ -68,7 +70,7 @@
               @click="clickToLogin"
             >
               <v-icon
-                left
+                bottom
                 dark
               >
                 mdi-google
@@ -109,7 +111,6 @@
           </v-list>
         </v-list>
       </v-menu>
-      
     </v-app-bar>
     <Leftdrawer></Leftdrawer>
   </div>

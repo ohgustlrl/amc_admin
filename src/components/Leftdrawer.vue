@@ -33,7 +33,7 @@
           </v-list-item-icon>
         </v-list-item>
         <v-list-group
-          :value="true"
+          :value="false"
         >
           <template v-slot:activator>
             <v-list-item-icon>
