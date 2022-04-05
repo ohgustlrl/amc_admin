@@ -44,7 +44,7 @@
             </v-list-item-title>
           </template>
           <template>
-            <v-list-item :to="{ path: '/managerlist' }" color="primary">
+            <v-list-item :to="{ path: '/adminllist' }" color="primary">
               <v-list-item-title>
                 운영진
               </v-list-item-title>

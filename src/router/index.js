@@ -5,7 +5,7 @@ import Memberlist from '../views/member/Memberlist.vue'
 import Record from '../views/member/Memberlist.vue'
 import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
-
+import MemberManager from '../views/member/MemberManager'
 
 
 Vue.use(VueRouter)
@@ -20,6 +20,11 @@ const routes = [
     path: '/memberlist',
     name: 'memberlist',
     component: Memberlist
+  },
+  {
+    path: '/adminllist',
+    name: 'adminlist',
+    component: MemberManager
   },
   {
     path: '/record',
