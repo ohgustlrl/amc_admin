@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
+Vue.config.devtools = true
 
 
 export const store = new Vuex.Store({
@@ -11,6 +12,8 @@ export const store = new Vuex.Store({
     userInfo: undefined,
     drawer: false,
     loading: false,
+    memberList: [],
+    managerList: [],
   },
   getters: {
   },

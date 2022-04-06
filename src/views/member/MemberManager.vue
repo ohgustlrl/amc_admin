@@ -17,8 +17,7 @@
     </v-banner>
     <v-data-table
       :headers="headers"
-      :items="memberList"
-      :search="search"
+      :items="this.$store.state.managerList"
       hide-default-footer
       sort-by="name"
       class="elevation-1"
@@ -33,21 +32,13 @@
               <v-card-title class="text-h5">정말로 삭제하시겠습니까?</v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete">취소</v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm">삭제</v-btn>
+                <v-btn color="blue darken-1" text>취소</v-btn>
+                <v-btn color="blue darken-1" text >삭제</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </v-toolbar>
-      </template>
-      <template v-slot:[getItemControl()]="{ item }" >
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
       </template>
       <template v-slot:no-data>
         표시할 데이터가 없습니다.
@@ -57,6 +48,9 @@
 </template>
 
 <script>
+import firebase from '@/plugins/firebase'
+import { getFirestore, collection, getDocs, where, query } from 'firebase/firestore/lite'
+
 export default {
   name: "Member-manager",
 
@@ -68,61 +62,26 @@ export default {
         { text: '성별', align: 'start', value: 'sex' },
         { text: '나이',  align: 'start', value: 'age' },
         { text: '스팀 아이디', align: 'start', value: 'steamid' },
-        { text: '삭제', align: 'start',  value: 'actions', sortable: false },
       ],
-      memberList: [],
     };
   },
-  computed: {
-  },
+  computed: {},
 
-  watch: {
-    dialog (val) {
-        val || this.close()
-      },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    },
-  },
+  watch: {},
 
   created() {
+    this.getMembers();
   },
 
   methods: {
-  
-    deleteItem (item) {
-      this.editedIndex = this.memberList.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+    async getMembers() {
+      const db = getFirestore(firebase)
+      const memberCol = collection(db, 'members');
+      const q = query(memberCol, where("manager", "==", "TRUE"))
+      const memberSnapShot = await getDocs(q);
+      this.$store.state.managerList = memberSnapShot.docs.map(doc => doc.data());
+      return
     },
-
-    deleteItemConfirm () {
-      this.memberList.splice(this.editedIndex, 1)
-      this.closeDelete()
-    },
-
-    close () {
-      this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
-    },
-
-    closeDelete () {
-      this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
-    },
-
-    save () {
-      this.firebase.firestore().collection('members').add()
-    },
-    getItemControl() {
-      return `item.actions`
-    }
   },
 };
 </script>

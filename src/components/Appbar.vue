@@ -161,6 +161,7 @@ import Leftdrawer from './Leftdrawer.vue'
           })
           .finally(() => {
             this.$store.commit('onloading')
+            this.isHide = false;
             setPersistence(auth, browserSessionPersistence)
               .then(() => {})
           })
