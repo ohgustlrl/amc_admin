@@ -9,13 +9,15 @@ Vue.config.devtools = true
 export const store = new Vuex.Store({
 
   state: {
-    userInfo: undefined,
     drawer: false,
     loading: false,
     memberList: [],
     managerList: [],
+    playerNames : {},
+    matchData : [],
   },
   getters: {
+
   },
   mutations: {
     onToggleDrawer(state) {
@@ -30,19 +32,16 @@ export const store = new Vuex.Store({
     onloading(state) {
       state.loading = !state.loading;
     },
+    onUserIdData(state, userId) {
+      state.playerNames = userId;
+    },
+    onMatchesData(state, matchInfor) {
+      state.matchData = matchInfor;
+    },
   },
-    // [events.SIGN_IN](state, user) {
-    //   state.userInfo = user;
-    //   Vue.$cookies.set('token', user.jwt_token);
-    // },
-    // [events.SIGN_OUT](state) {
-    //   state.userInfo = undefined;
-    //   Vue.$cookies.remove();
-    //   Vue.$cookies.remove();
   actions: {},
   modules: {},
   plugins: [createPersistedState({
     storage: window.sessionStorage,
   })],
 })
-
