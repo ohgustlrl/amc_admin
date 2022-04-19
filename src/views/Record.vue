@@ -15,7 +15,7 @@
         >
           mdi-record-rec
         </v-icon>
-          전적조회
+          활동 내역 조회
       </v-banner>
     </template>
     <v-row>
@@ -25,8 +25,16 @@
         <v-btn
           color="primary"
           elevation="2"
+          class="ma-3"
           large
-          @click="search"
+          @click="arrayOfMatchesIds"
+        >매치 목록 만들기</v-btn>
+        <v-btn
+          color="primary"
+          elevation="2"
+          class="ma-3"
+          large
+          @click="matchesData"
         >일괄 검색</v-btn>
       </v-col>  
     </v-row>
@@ -72,23 +80,27 @@ export default {
       itemsPerPage: 10,
       recodHeaders: [
           { text: '닉네임', align: 'start', value: 'name', sortable: false },
-          { text: '14일 이내 게임 활동', value: 'calories', sortable: false },
-          { text: '클랜원과의 게임 활동', value: 'fat', sortable: false },
+          { text: '14일간 게임 활동', value: 'state', sortable: false },
+          { text: '클랜원과의 게임 활동', value: 'withmember', sortable: false },
         ],
       matchid : [],
-      userId : {},
-      baseUrl : 'https://api.pubg.com/shards/steam/'
+      matchesDatas : [],
+      getMatchIds : [],
+      userId : [],
+      result : [],
+      baseUrl : 'https://api.pubg.com/shards/steam/',
     }
   },
   created() {
     this.getMembers();
     this.membersArrayDivision();
+    this.search();
   },
-  computed: {
+  computed : {
   },
   methods: {
     async search() {
-      this.getMembersIds();1
+      this.getMembersIds();
       await this.$axios.get(this.baseUrl+'players?filter[playerNames]='+
           this.membersIds[0]+','+
           this.membersIds[1]+','+
@@ -106,43 +118,34 @@ export default {
         }
       })
         .then(res => {
-          this.userId = res.data.data[0].relationships.matches.data
-          this.$store.commit("onUserIdData", this.userId)
+          this.result = res.data.data;
           this.membersIds = [];
-          // this.matchesData();
+        }) .catch(e => {
+          console.log(e)
+        })
+        .then(() => {
+          // Matches IDs 배열 만들기
+          this.result.forEach((item, i) => {
+            // this.matchid.push(item.relationships.matches.data)
+            this.matchid[i] = 
+            Object.values(item.relationships.matches.data)
+          })
         })
     },
 
     async matchesData() {
-      this.matchid = this.$store.state.playerNames
-      for(let i = 0; i <= this.matchid.length; i++) {
-        await this.$axios.get(this.baseUrl + 'matches/' + this.matchid[i].id, {
-          headers : {
-            'accept': 'application/vnd.api+json',
-          }
+      for(let i=0; i < this.getMatchIds.length; i++) {
+        this.getMatchIds[i].forEach((item) => {
+          setTimeout(() => {
+            this.$axios.get(this.baseUrl+'matches/'+item, {
+              headers : {
+                'Accept': 'application/vnd.api+json',
+              }
+            })
+            .then(res => console.log(res))
+          }, 2000);
         })
-          .then(res => {
-            console.log(res)
-          })
       }
-        // this.$axios.get(this.baseUrl + 'matches/' + item[index].id, {
-        //   headers : {
-        //     'accept': 'application/vnd.api+json',
-        //   }
-        // })
-        //   .then(res => {
-        //     console.log(res)
-        //   })
-      // this.$axios.get(this.baseUrl + 'matches/' + this.matchid, {
-      //     headers : {
-      //       'accept': 'application/vnd.api+json',
-      //     }
-      //   })
-      //     .then(res => {
-      //       this.matchInfor = res.data.data.attributes
-      //       console.log(this.matchInfor)
-      //       this.$store.commit("onMatchesData", this.matchInfor)
-      //     })
     },
     getMembers() {
       this.members = this.$store.state.memberList
@@ -157,7 +160,12 @@ export default {
       for(let i = 0; i < this.divisionMembers[this.page -1].length; i++) {
         this.membersIds.push(this.divisionMembers[this.page - 1][i].steamid);
       }
-    }
+    },
+    arrayOfMatchesIds() {
+      this.matchid.forEach((item ,i) => {
+        this.getMatchIds[i] = this.matchid[i].map(x => x.id)
+      })
+    },
   }
 };
 </script>

@@ -61,7 +61,7 @@
             <v-icon>mdi-magnify</v-icon>
           </v-list-item-icon>
           <v-list-item-title  style="text-align:left">
-              전적조회
+              활동내역조회
           </v-list-item-title>
           <v-list-item-icon>
           </v-list-item-icon>

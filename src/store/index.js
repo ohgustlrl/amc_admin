@@ -13,7 +13,6 @@ export const store = new Vuex.Store({
     loading: false,
     memberList: [],
     managerList: [],
-    playerNames : {},
     matchData : [],
   },
   getters: {
@@ -31,9 +30,6 @@ export const store = new Vuex.Store({
     },
     onloading(state) {
       state.loading = !state.loading;
-    },
-    onUserIdData(state, userId) {
-      state.playerNames = userId;
     },
     onMatchesData(state, matchInfor) {
       state.matchData = matchInfor;
