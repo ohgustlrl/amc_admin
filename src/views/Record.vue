@@ -51,7 +51,20 @@
     >
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">
-          More info about {{ item.name }}
+          <table>
+            <thead>
+              <tr>
+                <th>플레이 일자</th>
+                <th>팀원</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pr-3">{{item.name}} 2022-01-08</td>
+                <td>킴용다,현시기,맹수,제티</td>
+              </tr>
+            </tbody>
+            </table>
         </td>
       </template>
     </v-data-table>
@@ -61,6 +74,15 @@
         :length="pageCount"
       ></v-pagination>
     </div>
+    <v-overlay :class="isHide === false ? 'd-none' : ''">
+      <v-progress-circular
+        :size="50"
+        color="primary"
+        indeterminate
+      >
+      </v-progress-circular>
+      데이터를 처리 중입니다.
+    </v-overlay>
   </div> 
 </template>
 
@@ -84,12 +106,20 @@ export default {
           { text: '클랜원과의 게임 활동', value: 'withmember', sortable: false },
         ],
       matchid : [],
-      matchesDatas : [],
+      matchesTimeData : [],
+      matchesTeamData : [],
+      assignTime: [],
+      assignTeam: [],
       getMatchIds : [],
       userId : [],
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
+      teamlist : [],
+      isHide : false
     }
+  },
+  beforeDestroy () {
+    clearInterval(this.interval)
   },
   created() {
     this.getMembers();
@@ -134,17 +164,37 @@ export default {
     },
 
     async matchesData() {
-      for(let i=0; i < this.getMatchIds.length; i++) {
-        this.getMatchIds[i].forEach((item) => {
-          setTimeout(() => {
-            this.$axios.get(this.baseUrl+'matches/'+item, {
-              headers : {
-                'Accept': 'application/vnd.api+json',
-              }
-            })
-            .then(res => console.log(res))
-          }, 2000);
-        })
+      this.showLoading();
+      for (let i=0; i < this.getMatchIds.length; i++) {
+        for await (const item of this.getMatchIds[i]) {
+          this.$axios.get(this.baseUrl+'matches/'+item, {
+            headers : {
+              'Accept': 'application/vnd.api+json',
+            }
+          })
+          .then(res => {
+            this.matchesTimeData.push(Object.freeze(res.data.data.attributes.createdAt))
+            this.matchesTeamData.push(Object.freeze(res.data.included))
+          })
+          .catch(e => console.log(e))
+          .finally(() => {
+            this.assignData();
+            this.hideLoading();
+          })
+        }
+        // this.getMatchIds[i].forEach((item) => {
+        //   this.$axios.get(this.baseUrl+'matches/'+item, {
+        //     headers : {
+        //       'Accept': 'application/vnd.api+json',
+        //     }
+        //   })
+        //   .then(res => {
+        //     this.matchesTimeData.push(res.data.data.attributes.createdAt)
+        //     this.matchesTeamData.push(res.data.included)
+        //     this.hideLoading();
+        //   })
+        //   .catch(e => console.log(e))
+        // })
       }
     },
     getMembers() {
@@ -166,6 +216,29 @@ export default {
         this.getMatchIds[i] = this.matchid[i].map(x => x.id)
       })
     },
-  }
+    showLoading() {
+      this.isHide = true
+    },
+    hideLoading() {
+      this.isHide = false
+    },
+    assignData() {
+      for(let i=0; i < this.matchid.length; i++) {
+        this.matchid[i].forEach((item, j) => {
+          this.assignTime[i] = Object.freeze(this.matchesTimeData.slice(0, j))
+          this.assignTeam[i] = Object.freeze(this.matchesTeamData.slice(0, j))
+        })
+      }
+    }
+  },
 };
 </script>
+
+<style scoped>
+  table {
+    width: 100%;
+  }
+  table td, th {
+    border: 1px solid #000;
+  }
+</style>
