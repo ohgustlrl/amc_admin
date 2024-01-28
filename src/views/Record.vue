@@ -27,47 +27,41 @@
           elevation="2"
           class="ma-3"
           large
-          @click="arrayOfMatchesIds"
+          @click="getCurrentPageInAccntId(), arrayOfMatchesIds"
         >매치 목록 만들기</v-btn>
         <v-btn
           color="primary"
           elevation="2"
           class="ma-3"
           large
-          @click="matchesData"
+          @click="search(), matchesData"
         >일괄 검색</v-btn>
       </v-col>  
     </v-row>
-    <v-data-table
+    <v-expansion-panels>
+      <v-expansion-panel
+        v-for="(item, i) in divisionMembers[page - 1]"
+        :key="i"
+      >
+        <v-expansion-panel-header>
+          {{ "닉네임 : " + item.name }}
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          내용
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
+    <!-- <v-data-table
       :headers="recodHeaders"
       :items="members"
       item-key="name"
-      show-expand
       class="elevation-1"
       :page.sync="page"
       :items-per-page="itemsPerPage"
       hide-default-footer
       @page-count="pageCount = $event"
     >
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">
-          <table>
-            <thead>
-              <tr>
-                <th>플레이 일자</th>
-                <th>팀원</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="pr-3">{{item.name}} 2022-01-08</td>
-                <td>킴용다,현시기,맹수,제티</td>
-              </tr>
-            </tbody>
-            </table>
-        </td>
-      </template>
-    </v-data-table>
+    </v-data-table> -->
     <div class="text-center">
       <v-pagination
         v-model="page"
@@ -96,7 +90,7 @@ export default {
     return {
       members: [],
       divisionMembers: [],
-      membersIds: [],
+      membersNames: [],
       page: 1,
       pageCount: 0,
       itemsPerPage: 10,
@@ -115,58 +109,65 @@ export default {
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
       teamlist : [],
-      isHide : false
+      isHide : false,
     }
-  },
-  beforeDestroy () {
-    clearInterval(this.interval)
   },
   created() {
     this.getMembers();
     this.membersArrayDivision();
-    this.search();
+    this.getMembersIds();
+    // this.search();
   },
   computed : {
   },
-  methods: {
-    async search() {
+  watch : {
+    page() {
+      this.membersNames = [];
       this.getMembersIds();
-      await this.$axios.get(this.baseUrl+'players?filter[playerNames]='+
-          this.membersIds[0]+','+
-          this.membersIds[1]+','+
-          this.membersIds[2]+','+
-          this.membersIds[3]+','+
-          this.membersIds[4]+','+
-          this.membersIds[5]+','+
-          this.membersIds[6]+','+
-          this.membersIds[7]+','+
-          this.membersIds[8]+','+
-          this.membersIds[9], {
+    }
+  },
+  methods: {
+    async getCurrentPageInAccntId() {
+      await this.$axios.get(`${this.baseUrl}players?filter[playerNames]=${this.membersNames}`, {
         headers : {
           'Accept': 'application/vnd.api+json',
           'Authorization': apikey
         }
       })
         .then(res => {
-          this.result = res.data.data;
-          this.membersIds = [];
+          this.result = res.data.data.map(playerData => {
+            const name = playerData.attributes.name;
+            const accntId = playerData.id;
+            const matches = playerData.relationships.matches.data
+
+            if(this.membersNames.includes(name)) {
+              return {
+                name,
+                accntId,
+                matches
+              }
+            }
+
+            return '해당 아이디는 조회가 되지 않습니다.'
+          });
         }) .catch(e => {
-          console.log(e)
+          console.log(e, "조회하는 동안 문제가 발생하였습니다.")
         })
-        .then(() => {
-          // Matches IDs 배열 만들기
-          this.result.forEach((item, i) => {
-            // this.matchid.push(item.relationships.matches.data)
-            this.matchid[i] = 
-            Object.values(item.relationships.matches.data)
-          })
-        })
+        // .then(() => {
+        //   // Matches IDs 배열 만들기
+        //   this.result.forEach((item, i) => {
+        //     // this.matchid.push(item.relationships.matches.data)
+        //     this.matchid[i] = 
+        //     Object.values(item.relationships.matches.data)
+        //   })
+        // })
     },
 
     async matchesData() {
       this.showLoading();
       for (let i=0; i < this.getMatchIds.length; i++) {
-        for await (const item of this.getMatchIds[i]) {
+        for await (const [i, item] of this.getMatchIds[i].entries()) {
+          console.log(item, i)
           this.$axios.get(this.baseUrl+'matches/'+item, {
             headers : {
               'Accept': 'application/vnd.api+json',
@@ -204,17 +205,21 @@ export default {
       const size = 10;
       for(let i = 0; i < this.members.length; i += size) {
         this.divisionMembers.push(this.members.slice(i, i+size));
-      }   
+      }
+      this.pageCount = this.divisionMembers.length;
     },
     getMembersIds() {
       for(let i = 0; i < this.divisionMembers[this.page -1].length; i++) {
-        this.membersIds.push(this.divisionMembers[this.page - 1][i].steamid);
+        this.membersNames.push(this.divisionMembers[this.page - 1][i].steamid);
       }
     },
     arrayOfMatchesIds() {
       this.matchid.forEach((item ,i) => {
         this.getMatchIds[i] = this.matchid[i].map(x => x.id)
       })
+    },
+    getMatchids() {
+      
     },
     showLoading() {
       this.isHide = true
@@ -239,6 +244,6 @@ export default {
     width: 100%;
   }
   table td, th {
-    border: 1px solid #000;
+    border: 0px solid #000;
   }
 </style>

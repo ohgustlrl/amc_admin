@@ -221,8 +221,7 @@
 
 <script>
 import firebase from '@/plugins/firebase'
-import { getFirestore, collection, getDocs, doc,
-setDoc, deleteDoc } from 'firebase/firestore/lite'
+import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore/lite'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -315,7 +314,7 @@ export default {
       this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
       return
     },
-
+    
     editItem (item) {
       this.editedIndex = this.$store.state.memberList.indexOf(item)
       this.editedItem = Object.assign({}, item)
