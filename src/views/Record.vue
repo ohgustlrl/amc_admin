@@ -28,14 +28,7 @@
           class="ma-3"
           large
           @click="getCurrentPageInAccntId(), arrayOfMatchesIds"
-        >매치 목록 만들기</v-btn>
-        <v-btn
-          color="primary"
-          elevation="2"
-          class="ma-3"
-          large
-          @click="search(), matchesData"
-        >일괄 검색</v-btn>
+        >조회하기</v-btn>
       </v-col>  
     </v-row>
     <v-expansion-panels>
@@ -51,17 +44,6 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <!-- <v-data-table
-      :headers="recodHeaders"
-      :items="members"
-      item-key="name"
-      class="elevation-1"
-      :page.sync="page"
-      :items-per-page="itemsPerPage"
-      hide-default-footer
-      @page-count="pageCount = $event"
-    >
-    </v-data-table> -->
     <div class="text-center">
       <v-pagination
         v-model="page"
@@ -82,6 +64,8 @@
 
 <script>
 import { apikey } from '../pubgClientConfig'
+import firebase from '@/plugins/firebase'
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
 
 export default {
   name: "record_search",
@@ -114,8 +98,7 @@ export default {
   },
   created() {
     this.getMembers();
-    this.membersArrayDivision();
-    this.getMembersIds();
+    
     // this.search();
   },
   computed : {
@@ -198,17 +181,25 @@ export default {
         // })
       }
     },
-    getMembers() {
+    async getMembers() {
+      const db = getFirestore(firebase)
+      const memberCol = collection(db, 'members');
+      const memberSnapShot = await getDocs(memberCol);
+      this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
       this.members = this.$store.state.memberList
+
+      await this.membersArrayDivision();
+      await this.getMembersIds();
     },
-    membersArrayDivision() {
+
+    async membersArrayDivision() {
       const size = 10;
       for(let i = 0; i < this.members.length; i += size) {
         this.divisionMembers.push(this.members.slice(i, i+size));
       }
       this.pageCount = this.divisionMembers.length;
     },
-    getMembersIds() {
+    async getMembersIds() {
       for(let i = 0; i < this.divisionMembers[this.page -1].length; i++) {
         this.membersNames.push(this.divisionMembers[this.page - 1][i].steamid);
       }
