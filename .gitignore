@@ -23,9 +23,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-# Fierbase Config
-firebaseConfig.js
-
 # etc
 *.xlsx
 *.csv
