@@ -40,7 +40,12 @@
           {{ "닉네임 : " + item.name }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          내용
+          <span v-if="memberInResultList(item) == false">
+            유저 정보를 찾을 수 없습니다.
+          </span>
+          <span v-else-if="recentlyMatche(i)">
+            최근 2주간 플레이 이력이 없습니다.
+          </span>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -98,7 +103,6 @@ export default {
   },
   created() {
     this.getMembers();
-    
     // this.search();
   },
   computed : {
@@ -146,6 +150,30 @@ export default {
         // })
     },
 
+    // 멤버의 스팀아이디 조회결과 스팀 아이디를 찾을 수 없는 경우를
+    // 표시할 때 사용하는 함수
+    memberInResultList(item) {
+      const res = this.result?.filter((i) => i.name === item.steamid)
+      if (res.length == 0) {
+        return false
+      } else return true
+    },
+
+    // 최근 게임 이력 여부를 필터링하는 함수
+    recentlyMatche(index) {
+      if (this.result[index]?.matches.length == 0) {
+        return true
+      } else return false
+    },
+
+    getMatchesData() {
+      this.result?.forEach((i) => {
+        if(i.matches.length !== 0) {
+          return
+        }
+      })
+    },
+
     async matchesData() {
       this.showLoading();
       for (let i=0; i < this.getMatchIds.length; i++) {
@@ -190,6 +218,7 @@ export default {
 
       await this.membersArrayDivision();
       await this.getMembersIds();
+      await this.getCurrentPageInAccntId();
     },
 
     async membersArrayDivision() {
@@ -208,9 +237,6 @@ export default {
       this.matchid.forEach((item ,i) => {
         this.getMatchIds[i] = this.matchid[i].map(x => x.id)
       })
-    },
-    getMatchids() {
-      
     },
     showLoading() {
       this.isHide = true
