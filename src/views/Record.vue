@@ -32,38 +32,41 @@
       </v-col>  
     </v-row>
     <v-expansion-panels>
-      <v-expansion-panel
-        v-for="(item, i) in divisionMembers[page - 1]"
-        :key="i"
-      >
-        <v-expansion-panel-header>
-          {{ "닉네임 : " + item.name }}
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <span v-if="memberInResultList(item) == false">
-            유저 정보를 찾을 수 없습니다.
-          </span>
-          <span v-else-if="recentlyMatche(i)">
-            최근 2주간 플레이 이력이 없습니다.
-          </span>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
+      <v-overlay :class="isHide === false ? 'd-none' : ''">
+        <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+        >
+        </v-progress-circular>
+        데이터를 처리 중입니다.
+      </v-overlay>
+      <template>
+        <v-expansion-panel
+          v-for="(item, i) in divisionMembers[page - 1]"
+          :key="i"
+        >
+          <v-expansion-panel-header>
+            {{ "닉네임 : " + item.name }}
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <span v-if="memberInResultList(item) == false">
+              유저 정보를 찾을 수 없습니다.
+            </span>
+            <span v-else-if="recentlyMatche(item)">
+              최근 2주간 플레이 이력이 없습니다.
+            </span>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </template>
     </v-expansion-panels>
+      
     <div class="text-center">
       <v-pagination
         v-model="page"
         :length="pageCount"
       ></v-pagination>
     </div>
-    <v-overlay :class="isHide === false ? 'd-none' : ''">
-      <v-progress-circular
-        :size="50"
-        color="primary"
-        indeterminate
-      >
-      </v-progress-circular>
-      데이터를 처리 중입니다.
-    </v-overlay>
   </div> 
 </template>
 
@@ -99,6 +102,7 @@ export default {
       baseUrl : 'https://api.pubg.com/shards/steam/',
       teamlist : [],
       isHide : false,
+      membersArrayDivisionExecuted  : false
     }
   },
   created() {
@@ -110,7 +114,7 @@ export default {
   watch : {
     page() {
       this.membersNames = [];
-      this.getMembersIds();
+      this.getMembers();
     }
   },
   methods: {
@@ -160,8 +164,9 @@ export default {
     },
 
     // 최근 게임 이력 여부를 필터링하는 함수
-    recentlyMatche(index) {
-      if (this.result[index]?.matches.length == 0) {
+    recentlyMatche(item) {
+      const res = this.result?.filter((i) => i.name === item.steamid)
+      if (res[0].matches.length == 0) {
         return true
       } else return false
     },
@@ -210,15 +215,21 @@ export default {
       }
     },
     async getMembers() {
+      this.showLoading()
       const db = getFirestore(firebase)
       const memberCol = collection(db, 'members');
       const memberSnapShot = await getDocs(memberCol);
       this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
       this.members = this.$store.state.memberList
 
-      await this.membersArrayDivision();
+      if(!this.membersArrayDivisionExecuted) {
+        await this.membersArrayDivision();
+        this.membersArrayDivisionExecuted = true;
+      }
+
       await this.getMembersIds();
       await this.getCurrentPageInAccntId();
+      this.hideLoading();
     },
 
     async membersArrayDivision() {

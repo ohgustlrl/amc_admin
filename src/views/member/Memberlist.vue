@@ -244,6 +244,7 @@ export default {
         { text: '디코ID', align:'start', value: 'discordid' },
         { text: '수정/삭제', align: 'start',  value: 'actions', sortable: false },
       ],
+      discordMemberList : {},
       items: ['5', '10', '15', '100'],
       page: 1,
       pageCount: 0,
