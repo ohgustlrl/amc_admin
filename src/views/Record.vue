@@ -27,7 +27,7 @@
           elevation="2"
           class="ma-3"
           large
-          @click="getCurrentPageInAccntId(), arrayOfMatchesIds"
+          @click="getLoopMatchesData(), arrayOfMatchesIds"
         >조회하기</v-btn>
       </v-col>  
     </v-row>
@@ -71,9 +71,21 @@
 </template>
 
 <script>
+
+// data > included > relationships > participants > data[]에 팀원 정보담겨있음
+
+// 플레이어를 기준으로 팀원정보를 가져오기 위해선
+
+// 1. data > included > attributes 객체에서 name 이 steamId랑 같은 객체를 찾는다.
+// 2. 찾은 객체에서 id 값을 가져와 변수에 할당
+// 3. 해당 id를 다시 data > included > relationships > participants 의 id가 있는지 필터링
+// 4. 2번의 id를 제외한 나머지 id를 다시 변수에 할당
+// 5. 4번의 id를 data > included 에서 조회 하여 일치하는 객체의 name 을 뽑는다
+
 import { apikey } from '../pubgClientConfig'
 import firebase from '@/plugins/firebase'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
+import { getMatchesData } from '../API/pubg'
 
 export default {
   name: "record_search",
@@ -170,6 +182,39 @@ export default {
         return true
       } else return false
     },
+
+    getLoopMatchesData() {
+      let allMatchData = [];
+
+      this.result.forEach((item) => {
+        if (item.matches.length !== 0 ) {
+          allMatchData[item.name] = []
+          
+          item.matches.forEach((obj) => {
+            allMatchData[item.name].push({
+              id: obj.id
+            })
+            // this.$axios.get(`${this.baseUrl}matches/${obj.id}`, {
+            //   headers: {
+            //     'Accept': 'application/vnd.api+json',
+            //     'Authorization': apikey
+            //   }
+            // })
+            // .then(res => {
+            //   const matchData = res.data.data
+            //   allMatchData.push(matchData)
+            // })
+          })
+        }
+      })
+      getMatchesData(allMatchData)
+    },
+
+    // filteredTeamPlayers() {
+    //   this.getLoopMatchesData().then(allMatchData => {
+    //     console.log(allMatchData)
+    //   })
+    // },
 
     getMatchesData() {
       this.result?.forEach((i) => {
