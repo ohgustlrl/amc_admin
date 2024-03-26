@@ -13,7 +13,7 @@ export const store = new Vuex.Store({
     loading: false,
     memberList: [],
     managerList: [],
-    matchData : [],
+    matchesData : [],
   },
   getters: {
 
@@ -32,7 +32,7 @@ export const store = new Vuex.Store({
       state.loading = !state.loading;
     },
     onMatchesData(state, matchInfor) {
-      state.matchData = matchInfor;
+      state.matchesData = matchInfor;
     },
   },
   actions: {},
