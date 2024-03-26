@@ -130,8 +130,27 @@ export default {
     }
   },
   methods: {
-    async testGetAccntIds(membersNames) {
-      this.result = getAccntIds(membersNames)
+    async GetAccntIdsAPI(membersNames) {
+      try {
+        const response = await getAccntIds(membersNames)
+        this.result = response.data.map(playerData => {
+          const name = playerData.attributes.name;
+          const accntId = playerData.id;
+          const matches = playerData.relationships.matches.data
+
+          if(this.membersNames.includes(name)) {
+            return {
+              name,
+              accntId,
+              matches
+            }
+          }
+
+          return '해당 아이디는 조회가 되지 않습니다.'
+        })
+      } catch (error) {
+        alert(error, '조회하는 동안 문제가 발생하였습니다.')
+      }
     },
 
     async getCurrentPageInAccntId() {
@@ -211,6 +230,7 @@ export default {
           })
         }
       })
+      console.log(allMatchData)
       getMatchesData(allMatchData)
     },
 
@@ -277,7 +297,7 @@ export default {
       }
 
       await this.getMembersIds();
-      await this.testGetAccntIds(this.membersNames);
+      await this.GetAccntIdsAPI(this.membersNames);
       // await this.getCurrentPageInAccntId();
       this.hideLoading();
     },
