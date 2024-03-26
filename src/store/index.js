@@ -38,6 +38,12 @@ export const store = new Vuex.Store({
   actions: {},
   modules: {},
   plugins: [createPersistedState({
+    key: 'vuex',
     storage: window.sessionStorage,
+    reducer : (state) => ({
+      drawer : state.drawer,
+      loading : state.loading,
+      memberList : state.memberList
+    })
   })],
 })
