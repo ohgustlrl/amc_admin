@@ -234,20 +234,18 @@ export default {
      */
     async getLoopMatchesData() {
       try {
-        let allMatchData = [];
+        let allMatchData = {};
 
-        this.result.forEach((item) => {
+        const promises = this.result.map(async (item) => {
           if(item.matches.length !== 0) {
-            allMatchData[item.name] = []
-
-            item.matches.forEach((obj) => {
-              allMatchData[item.name].push({
-                id : obj.id
-              })
-            })
+            const matches = item.matches.map(obj => obj.id)
+            allMatchData[item.name] = matches
           }
         })
+
+        await Promise.all(promises)
         await getMatchesData(allMatchData)
+
       } catch (error) {
         console.log(error)
       }
