@@ -85,7 +85,7 @@
 import { apikey } from '../pubgClientConfig'
 import firebase from '@/plugins/firebase'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
-import { getMatchesData } from '../API/pubg'
+import { getMatchesData, getAccntIds } from '../API/pubg'
 
 export default {
   name: "record_search",
@@ -130,6 +130,10 @@ export default {
     }
   },
   methods: {
+    async testGetAccntIds(membersNames) {
+      this.result = getAccntIds(membersNames)
+    },
+
     async getCurrentPageInAccntId() {
       await this.$axios.get(`${this.baseUrl}players?filter[playerNames]=${this.membersNames}`, {
         headers : {
@@ -273,7 +277,8 @@ export default {
       }
 
       await this.getMembersIds();
-      await this.getCurrentPageInAccntId();
+      await this.testGetAccntIds(this.membersNames);
+      // await this.getCurrentPageInAccntId();
       this.hideLoading();
     },
 
