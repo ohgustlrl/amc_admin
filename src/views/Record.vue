@@ -57,6 +57,14 @@
             <span v-else-if="recentlyMatche(item)">
               최근 2주간 플레이 이력이 없습니다.
             </span>
+            <template v-else>
+              <v-data-table
+                :headers="recodHeaders"
+                :items="playerData"
+                :items-per-page="itemsPerPage"
+                class="elevation-1"
+              ></v-data-table>
+            </template>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </template>
@@ -100,9 +108,10 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       recodHeaders: [
-          { text: '닉네임', align: 'start', value: 'name', sortable: false },
-          { text: '14일간 게임 활동', value: 'state', sortable: false },
-          { text: '클랜원과의 게임 활동', value: 'withmember', sortable: false },
+          { text: '날짜', align: 'start', value: 'date', sortable: true },
+          { text: '맵', value: 'map', sortable: false },
+          { text: '모드', value: 'mode', sortable: false },
+          { text: '팀원', value: 'teamPlayer', sortable: false },
         ],
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
