@@ -82,7 +82,7 @@
 // 4. 2번의 id를 제외한 나머지 id를 다시 변수에 할당
 // 5. 4번의 id를 data > included 에서 조회 하여 일치하는 객체의 name 을 뽑는다
 
-import { apikey } from '../pubgClientConfig'
+// import { apikey } from '../pubgClientConfig'
 import firebase from '@/plugins/firebase'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
 import { getMatchesData, getAccntIds } from '../API/pubg'
@@ -130,6 +130,57 @@ export default {
     }
   },
   methods: {
+    /**
+     * 1. 파이어베이스에서 모든 멤버 데이터를 가지고 온다.
+     * 2. 가져온 멤버 데이터를 10개씩 배열로 쪼개어 저장한다.
+     * 3. getMembers는 뷰 인스턴스가 생성(created) 될 때 지속적으로
+     *    가져오므로 멤버데이터를 나누는 함수는 한번만 동작하도록 처리
+     * 4. 멤버데이터를 나눈 후 api서버에 account Id와 name, match데이터를 요청하여 받아온다.
+     */    
+    async getMembers() {
+      this.showLoading()
+      const db = getFirestore(firebase)
+      const memberCol = collection(db, 'members');
+      const memberSnapShot = await getDocs(memberCol);
+      this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
+      this.members = this.$store.state.memberList
+
+      if(!this.membersArrayDivisionExecuted) {
+        await this.membersArrayDivision();
+        this.membersArrayDivisionExecuted = true;
+      }
+
+      await this.getMembersIds();
+      await this.GetAccntIdsAPI(this.membersNames);
+      // await this.getCurrentPageInAccntId();
+      this.hideLoading();
+    },
+
+    /**
+     * getMembers에서 사용하는 멤버데이터를 나누는 함수
+     */
+    async membersArrayDivision() {
+      const size = 10;
+      for(let i = 0; i < this.members.length; i += size) {
+        this.divisionMembers.push(this.members.slice(i, i+size));
+      }
+      this.pageCount = this.divisionMembers.length;
+    },
+
+    /**
+     * 위에서 나눠진 멤버스 데이터에서 고유의 StreamID를 모아서
+     * membersNames의 배열로 헐당하는 함수
+     */
+    async getMembersIds() {
+      for(let i = 0; i < this.divisionMembers[this.page -1].length; i++) {
+        this.membersNames.push(this.divisionMembers[this.page - 1][i].steamid);
+      }
+    },
+
+    /**
+     * 1. API 서버로 멤버의 stream ID를 보내어 필요한 데이터를 요청
+     * 2.응답받은 데이터에서 match, accnt-id, name의 데이터만 뽑아내어 result 변수에 할당
+     */
     async GetAccntIdsAPI(membersNames) {
       try {
         const response = await getAccntIds(membersNames)
@@ -153,44 +204,11 @@ export default {
       }
     },
 
-    async getCurrentPageInAccntId() {
-      await this.$axios.get(`${this.baseUrl}players?filter[playerNames]=${this.membersNames}`, {
-        headers : {
-          'Accept': 'application/vnd.api+json',
-          'Authorization': apikey
-        }
-      })
-        .then(res => {
-          this.result = res.data.data.map(playerData => {
-            const name = playerData.attributes.name;
-            const accntId = playerData.id;
-            const matches = playerData.relationships.matches.data
-
-            if(this.membersNames.includes(name)) {
-              return {
-                name,
-                accntId,
-                matches
-              }
-            }
-
-            return '해당 아이디는 조회가 되지 않습니다.'
-          });
-        }) .catch(e => {
-          console.log(e, "조회하는 동안 문제가 발생하였습니다.")
-        })
-        // .then(() => {
-        //   // Matches IDs 배열 만들기
-        //   this.result.forEach((item, i) => {
-        //     // this.matchid.push(item.relationships.matches.data)
-        //     this.matchid[i] = 
-        //     Object.values(item.relationships.matches.data)
-        //   })
-        // })
-    },
-
-    // 멤버의 스팀아이디 조회결과 스팀 아이디를 찾을 수 없는 경우를
-    // 표시할 때 사용하는 함수
+    /**
+     * 멤버의 스팀아이디 조회결과 스팀 아이디를 찾을 수 없는 경우를
+     * 표시할 때 사용하는 함수
+     * @param {*} item 은 membersArrayDivision함수에서 나눠진 10명의 데이터
+     */
     memberInResultList(item) {
       const res = this.result?.filter((i) => i.name === item.steamid)
       if (res.length == 0) {
@@ -198,7 +216,11 @@ export default {
       } else return true
     },
 
-    // 최근 게임 이력 여부를 필터링하는 함수
+    /**
+     * result에 저장된 match 배열의 length를 판별하여
+     * 최근 게임 이력 여부를 필터링하는 함수
+     * @param {*} item 은 membersArrayDivision함수에서 나눠진 10명의 데이터
+     */
     recentlyMatche(item) {
       const res = this.result?.filter((i) => i.name === item.steamid)
       if (res[0].matches.length == 0) {
@@ -206,32 +228,29 @@ export default {
       } else return false
     },
 
-    getLoopMatchesData() {
-      let allMatchData = [];
+    /**
+     * result 데이터에서 match 배열을 뽑아내어
+     * API 서버에 보내고, match의 상세정보를 받아오는 함수
+     */
+    async getLoopMatchesData() {
+      try {
+        let allMatchData = [];
 
-      this.result.forEach((item) => {
-        if (item.matches.length !== 0 ) {
-          allMatchData[item.name] = []
-          
-          item.matches.forEach((obj) => {
-            allMatchData[item.name].push({
-              id: obj.id
+        this.result.forEach((item) => {
+          if(item.matches.length !== 0) {
+            allMatchData[item.name] = []
+
+            item.matches.forEach((obj) => {
+              allMatchData[item.name].push({
+                id : obj.id
+              })
             })
-            // this.$axios.get(`${this.baseUrl}matches/${obj.id}`, {
-            //   headers: {
-            //     'Accept': 'application/vnd.api+json',
-            //     'Authorization': apikey
-            //   }
-            // })
-            // .then(res => {
-            //   const matchData = res.data.data
-            //   allMatchData.push(matchData)
-            // })
-          })
-        }
-      })
-      console.log(allMatchData)
-      getMatchesData(allMatchData)
+          }
+        })
+        await getMatchesData(allMatchData)
+      } catch (error) {
+        console.log(error)
+      }
     },
 
     // filteredTeamPlayers() {
@@ -283,37 +302,7 @@ export default {
         // })
       }
     },
-    async getMembers() {
-      this.showLoading()
-      const db = getFirestore(firebase)
-      const memberCol = collection(db, 'members');
-      const memberSnapShot = await getDocs(memberCol);
-      this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
-      this.members = this.$store.state.memberList
 
-      if(!this.membersArrayDivisionExecuted) {
-        await this.membersArrayDivision();
-        this.membersArrayDivisionExecuted = true;
-      }
-
-      await this.getMembersIds();
-      await this.GetAccntIdsAPI(this.membersNames);
-      // await this.getCurrentPageInAccntId();
-      this.hideLoading();
-    },
-
-    async membersArrayDivision() {
-      const size = 10;
-      for(let i = 0; i < this.members.length; i += size) {
-        this.divisionMembers.push(this.members.slice(i, i+size));
-      }
-      this.pageCount = this.divisionMembers.length;
-    },
-    async getMembersIds() {
-      for(let i = 0; i < this.divisionMembers[this.page -1].length; i++) {
-        this.membersNames.push(this.divisionMembers[this.page - 1][i].steamid);
-      }
-    },
     arrayOfMatchesIds() {
       this.matchid.forEach((item ,i) => {
         this.getMatchIds[i] = this.matchid[i].map(x => x.id)
