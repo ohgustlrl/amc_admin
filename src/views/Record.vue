@@ -27,7 +27,7 @@
           elevation="2"
           class="ma-3"
           large
-          @click="getLoopMatchesData(), arrayOfMatchesIds"
+          @click="getLoopMatchesData()"
         >조회하기</v-btn>
       </v-col>  
     </v-row>
@@ -39,7 +39,8 @@
           indeterminate
         >
         </v-progress-circular>
-        데이터를 처리 중입니다.
+        <span v-if="!searchLoading">데이터를 가져오고 있습니다.</span>
+        <span v-else>유저의 게임 데이터가 많은 경우 데이터 처리에 오랜 시간이 소요될 수 있습니다.</span>
       </v-overlay>
       <template>
         <v-expansion-panel
@@ -103,18 +104,12 @@ export default {
           { text: '14일간 게임 활동', value: 'state', sortable: false },
           { text: '클랜원과의 게임 활동', value: 'withmember', sortable: false },
         ],
-      matchid : [],
-      matchesTimeData : [],
-      matchesTeamData : [],
-      assignTime: [],
-      assignTeam: [],
-      getMatchIds : [],
-      userId : [],
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
-      teamlist : [],
       isHide : false,
-      membersArrayDivisionExecuted  : false
+      membersArrayDivisionExecuted  : false,
+      playerData : [],
+      searchLoading : false
     }
   },
   created() {
@@ -233,6 +228,8 @@ export default {
      * API 서버에 보내고, match의 상세정보를 받아오는 함수
      */
     async getLoopMatchesData() {
+      this.searchLoading = !this.searchLoading
+      this.showLoading()
       try {
         let allMatchData = {};
 
@@ -244,10 +241,18 @@ export default {
         })
 
         await Promise.all(promises)
-        await getMatchesData(allMatchData)
+        const response = await getMatchesData(allMatchData)
 
+        if(response) {
+          this.$store.commit('onMatchesData', response)
+        }
+
+        this.searchLoading = !this.searchLoading
+        this.hideLoading()
       } catch (error) {
         console.log(error)
+        this.searchLoading = !this.searchLoading
+        this.hideLoading()
       }
     },
 
@@ -257,69 +262,12 @@ export default {
     //   })
     // },
 
-    getMatchesData() {
-      this.result?.forEach((i) => {
-        if(i.matches.length !== 0) {
-          return
-        }
-      })
-    },
-
-    async matchesData() {
-      this.showLoading();
-      for (let i=0; i < this.getMatchIds.length; i++) {
-        for await (const [i, item] of this.getMatchIds[i].entries()) {
-          console.log(item, i)
-          this.$axios.get(this.baseUrl+'matches/'+item, {
-            headers : {
-              'Accept': 'application/vnd.api+json',
-            }
-          })
-          .then(res => {
-            this.matchesTimeData.push(Object.freeze(res.data.data.attributes.createdAt))
-            this.matchesTeamData.push(Object.freeze(res.data.included))
-          })
-          .catch(e => console.log(e))
-          .finally(() => {
-            this.assignData();
-            this.hideLoading();
-          })
-        }
-        // this.getMatchIds[i].forEach((item) => {
-        //   this.$axios.get(this.baseUrl+'matches/'+item, {
-        //     headers : {
-        //       'Accept': 'application/vnd.api+json',
-        //     }
-        //   })
-        //   .then(res => {
-        //     this.matchesTimeData.push(res.data.data.attributes.createdAt)
-        //     this.matchesTeamData.push(res.data.included)
-        //     this.hideLoading();
-        //   })
-        //   .catch(e => console.log(e))
-        // })
-      }
-    },
-
-    arrayOfMatchesIds() {
-      this.matchid.forEach((item ,i) => {
-        this.getMatchIds[i] = this.matchid[i].map(x => x.id)
-      })
-    },
     showLoading() {
       this.isHide = true
     },
     hideLoading() {
       this.isHide = false
     },
-    assignData() {
-      for(let i=0; i < this.matchid.length; i++) {
-        this.matchid[i].forEach((item, j) => {
-          this.assignTime[i] = Object.freeze(this.matchesTimeData.slice(0, j))
-          this.assignTeam[i] = Object.freeze(this.matchesTeamData.slice(0, j))
-        })
-      }
-    }
   },
 };
 </script>
