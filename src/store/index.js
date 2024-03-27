@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import createLogger from 'vuex/dist/logger'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
@@ -14,6 +15,7 @@ export const store = new Vuex.Store({
     memberList: [],
     managerList: [],
     matchesData : [],
+    searchedPages : [],
   },
   getters: {
 
@@ -31,13 +33,21 @@ export const store = new Vuex.Store({
     onloading(state) {
       state.loading = !state.loading;
     },
+    onMemberList(state, data) {
+      state.memberList = data
+    },
     onMatchesData(state, matchInfor) {
       state.matchesData = matchInfor;
     },
+    onSearchedPage(state, data) {
+      state.searchedPages.push(data)
+    }
   },
   actions: {},
   modules: {},
-  plugins: [createPersistedState({
+  plugins: 
+  [
+    createPersistedState({
     key: 'vuex',
     storage: window.sessionStorage,
     reducer : (state) => ({
@@ -45,5 +55,8 @@ export const store = new Vuex.Store({
       loading : state.loading,
       memberList : state.memberList
     })
-  })],
+  }),
+  createLogger()
+],
+  strict: process.env.NODE_ENV !== 'production'
 })
