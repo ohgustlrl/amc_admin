@@ -146,7 +146,7 @@ export default {
       const db = getFirestore(firebase)
       const memberCol = collection(db, 'members');
       const memberSnapShot = await getDocs(memberCol);
-      this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
+      this.$store.commit('onMemberList', memberSnapShot.docs.map(doc => doc.data()));
       this.members = this.$store.state.memberList
 
       if(!this.membersArrayDivisionExecuted) {
@@ -237,39 +237,47 @@ export default {
      * API 서버에 보내고, match의 상세정보를 받아오는 함수
      */
     async getLoopMatchesData() {
-      this.searchLoading = !this.searchLoading
-      this.showLoading()
-      try {
-        let allMatchData = {};
-
-        const promises = this.result.map(async (item) => {
-          if(item.matches.length !== 0) {
-            const matches = item.matches.map(obj => obj.id)
-            allMatchData[item.name] = matches
+      let stateSearched = this.$store.state.searchedPages
+      if(stateSearched[this.page - 1]) {
+        return
+      } else {
+        this.searchLoading = !this.searchLoading
+        this.showLoading()
+        try {
+          let allMatchData = {};
+  
+          const promises = this.result.map(async (item) => {
+            if(item.matches.length !== 0) {
+              const matches = item.matches.map(obj => obj.id)
+              allMatchData[item.name] = matches
+            }
+          })
+  
+          await Promise.all(promises)
+          const response = await getMatchesData(allMatchData)
+  
+          if(response) {
+            this.$store.commit('onMatchesData', response)
+            this.$store.commit('onSearchedPage', stateSearched[this.page - 1] = true)
           }
-        })
-
-        await Promise.all(promises)
-        const response = await getMatchesData(allMatchData)
-
-        if(response) {
-          this.$store.commit('onMatchesData', response)
+  
+          this.searchLoading = !this.searchLoading
+          this.hideLoading()
+  
+          this.filteredCreatedAt()
+        } catch (error) {
+          console.log(error)
+          this.searchLoading = !this.searchLoading
+          this.hideLoading()
         }
-
-        this.searchLoading = !this.searchLoading
-        this.hideLoading()
-      } catch (error) {
-        console.log(error)
-        this.searchLoading = !this.searchLoading
-        this.hideLoading()
       }
+      this.filteredCreatedAt()
     },
 
-    // filteredTeamPlayers() {
-    //   this.getLoopMatchesData().then(allMatchData => {
-    //     console.log(allMatchData)
-    //   })
-    // },
+    filteredCreatedAt() {
+      const data = this.$store.state.matchesData
+      console.log(data)
+    },
 
     showLoading() {
       this.isHide = true
