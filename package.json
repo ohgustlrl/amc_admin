@@ -18,7 +18,7 @@
     "vue-router": "^3.5.1",
     "vue-template-babel-compiler": "^2.0.0",
     "vuetify": "^2.6.0",
-    "vuex": "2.0.0",
+    "vuex": "3.6.2",
     "vuex-persistedstate": "^4.1.0",
     "vux": "^2.11.1"
   },
