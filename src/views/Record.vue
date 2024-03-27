@@ -40,7 +40,7 @@
         >
         </v-progress-circular>
         <span v-if="!searchLoading">데이터를 가져오고 있습니다.</span>
-        <span v-else>유저의 게임 데이터가 많은 경우 데이터 처리에 오랜 시간이 소요될 수 있습니다.</span>
+        <span v-else>유저의 매치 데이터 및 인터넷 상태에 따라 데이터 처리에 오랜 시간이 소요될 수 있습니다.</span>
       </v-overlay>
       <template>
         <v-expansion-panel
@@ -58,12 +58,39 @@
               최근 2주간 플레이 이력이 없습니다.
             </span>
             <template v-else>
-              <v-data-table
-                :headers="recodHeaders"
-                :items="playerData"
-                :items-per-page="itemsPerPage"
-                class="elevation-1"
-              ></v-data-table>
+              <v-simple-table dense>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        플레이 일자
+                      </th>
+                      <th class="text-left">
+                        게임 정보
+                      </th>
+                      <th class="text-left">
+                        팀원 정보
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(player, key, index ) in playerData"
+                      :key="index"
+                    >
+                      <td 
+                        class="text-left"
+                        v-for="el in player.date"
+                        :key="el.index"
+                      >
+                        {{ el }}
+                      </td>
+                      <td class="text-left">{{ key }}</td>
+                      <td class="text-left">{{ index }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
             </template>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -95,10 +122,13 @@
 import firebase from '@/plugins/firebase'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
 import { getMatchesData, getAccntIds } from '../API/pubg'
+import dayjs from 'dayjs'
 
 export default {
   name: "record_search",
-
+  component() {
+    dayjs
+  },
   data() {
     return {
       members: [],
@@ -239,7 +269,8 @@ export default {
     async getLoopMatchesData() {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page - 1]) {
-        return
+        await this.filteredCreatedAt()
+        await this.filteredPlayInfo()
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -264,19 +295,50 @@ export default {
           this.searchLoading = !this.searchLoading
           this.hideLoading()
   
-          this.filteredCreatedAt()
+          await this.filteredCreatedAt()
+          await this.filteredPlayInfo()
         } catch (error) {
           console.log(error)
           this.searchLoading = !this.searchLoading
           this.hideLoading()
         }
       }
-      this.filteredCreatedAt()
     },
 
-    filteredCreatedAt() {
-      const data = this.$store.state.matchesData
-      console.log(data)
+    async filteredCreatedAt() {
+      const dataSet = this.$store.getters.matchesData
+      this.playerData = {};
+      
+      for(let key in dataSet) {
+        const dataArray = [];
+
+        dataSet[key].forEach(el => {
+          let createdAt = el.data.attributes.createdAt
+          dataArray.push(dayjs(createdAt).format("YYYY-MM-DD"))
+
+        });
+        
+        this.playerData[key] = { date : dataArray }
+      }
+    },
+
+    async filteredPlayInfo() {
+      const dataSet = this.$store.getters.matchesData
+      
+      for(let key in dataSet){
+        const mapArray = [];
+        const modeArray = [];
+        
+        dataSet[key].forEach(el => {
+          let mapName = el.data.attributes.mapName
+          let gameMode = el.data.attributes.gameMode
+
+          mapArray.push(mapName)
+          modeArray.push(gameMode)
+        })
+
+        Object.assign(this.playerData[key], { mapName : mapArray, gameMode : modeArray })
+      }
     },
 
     showLoading() {
