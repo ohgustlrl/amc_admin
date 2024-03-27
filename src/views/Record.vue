@@ -58,39 +58,7 @@
               최근 2주간 플레이 이력이 없습니다.
             </span>
             <template v-else>
-              <v-simple-table dense>
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">
-                        플레이 일자
-                      </th>
-                      <th class="text-left">
-                        게임 정보
-                      </th>
-                      <th class="text-left">
-                        팀원 정보
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(player, key, index ) in playerData"
-                      :key="index"
-                    >
-                      <td 
-                        class="text-left"
-                        v-for="el in player.date"
-                        :key="el.index"
-                      >
-                        {{ el }}
-                      </td>
-                      <td class="text-left">{{ key }}</td>
-                      <td class="text-left">{{ index }}</td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
+
             </template>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -270,7 +238,6 @@ export default {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page - 1]) {
         await this.filteredCreatedAt()
-        await this.filteredPlayInfo()
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -294,9 +261,7 @@ export default {
   
           this.searchLoading = !this.searchLoading
           this.hideLoading()
-  
-          await this.filteredCreatedAt()
-          await this.filteredPlayInfo()
+
         } catch (error) {
           console.log(error)
           this.searchLoading = !this.searchLoading
@@ -306,7 +271,8 @@ export default {
     },
 
     async filteredCreatedAt() {
-      const dataSet = this.$store.getters.matchesData
+      const dataSet = this.$store.getters.matchesData[this.page - 1]
+      console.log(dataSet)
       this.playerData = {};
       
       for(let key in dataSet) {
@@ -322,24 +288,24 @@ export default {
       }
     },
 
-    async filteredPlayInfo() {
-      const dataSet = this.$store.getters.matchesData
+    // async filteredPlayInfo() {
+    //   const dataSet = this.$store.getters.matchesData
       
-      for(let key in dataSet){
-        const mapArray = [];
-        const modeArray = [];
+    //   for(let key in dataSet){
+    //     const mapArray = [];
+    //     const modeArray = [];
         
-        dataSet[key].forEach(el => {
-          let mapName = el.data.attributes.mapName
-          let gameMode = el.data.attributes.gameMode
+    //     dataSet[key].forEach(el => {
+    //       let mapName = el.data.attributes.mapName
+    //       let gameMode = el.data.attributes.gameMode
 
-          mapArray.push(mapName)
-          modeArray.push(gameMode)
-        })
+    //       mapArray.push(mapName)
+    //       modeArray.push(gameMode)
+    //     })
 
-        Object.assign(this.playerData[key], { mapName : mapArray, gameMode : modeArray })
-      }
-    },
+    //     Object.assign(this.playerData[key], { mapName : mapArray, gameMode : modeArray })
+    //   }
+    // },
 
     showLoading() {
       this.isHide = true
