@@ -39,7 +39,7 @@ export const store = new Vuex.Store({
       state.memberList = data
     },
     onMatchesData(state, matchInfor) {
-      state.matchesData = matchInfor;
+      state.matchesData.push(matchInfor);
     },
     onSearchedPage(state, data) {
       state.searchedPages.push(data)
