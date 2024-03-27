@@ -18,7 +18,9 @@ export const store = new Vuex.Store({
     searchedPages : [],
   },
   getters: {
-
+    matchesData : state => {
+      return state.matchesData
+    }
   },
   mutations: {
     onToggleDrawer(state) {
