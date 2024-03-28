@@ -26,7 +26,7 @@
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="$store.state.memberList"
+      :items="memberList"
       :search="search"
       hide-default-footer
       :page.sync="page"
