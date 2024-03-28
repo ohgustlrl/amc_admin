@@ -13,6 +13,7 @@ export default {
   },
   created() {
     this.getInitMembers();
+    this.getManagerList();
   },
   methods: {
     async getInitMembers() {
