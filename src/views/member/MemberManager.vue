@@ -17,7 +17,7 @@
     </v-banner>
     <v-data-table
       :headers="headers"
-      :items="this.$store.state.managerList"
+      :items="managerList"
       hide-default-footer
       sort-by="name"
       class="elevation-1"
@@ -48,9 +48,6 @@
 </template>
 
 <script>
-import firebase from '@/plugins/firebase'
-import { getFirestore, collection, getDocs, where, query } from 'firebase/firestore/lite'
-
 export default {
   name: "Member-manager",
 
@@ -63,6 +60,7 @@ export default {
         { text: '나이',  align: 'start', value: 'age' },
         { text: '스팀 아이디', align: 'start', value: 'steamid' },
       ],
+      managerList : null,
     };
   },
   computed: {},
@@ -75,12 +73,7 @@ export default {
 
   methods: {
     async getMembers() {
-      const db = getFirestore(firebase)
-      const memberCol = collection(db, 'members');
-      const q = query(memberCol, where("manager", "==", "TRUE"))
-      const memberSnapShot = await getDocs(q);
-      this.$store.state.managerList = memberSnapShot.docs.map(doc => doc.data());
-      return
+      this.managerList = this.$store.state.managerList
     },
   },
 };

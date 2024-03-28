@@ -13,7 +13,7 @@ export const store = new Vuex.Store({
     drawer: false,
     loading: false,
     memberList: [],
-    managerList: [],
+    managerList: null,
     matchesData : [],
     searchedPages : [],
     userInfo : undefined,
@@ -44,7 +44,10 @@ export const store = new Vuex.Store({
     },
     onSearchedPage(state, data) {
       state.searchedPages.push(data)
-    }
+    },
+    onManagerList(state, data) {
+      state.managerList = data
+    },
   },
   actions: {},
   modules: {},
