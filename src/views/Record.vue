@@ -236,7 +236,7 @@ export default {
      */
     async getLoopMatchesData() {
       let stateSearched = this.$store.state.searchedPages
-      if(stateSearched[this.page - 1]) {
+      if(stateSearched[this.page]) {
         await this.filteredData()
       } else {
         this.searchLoading = !this.searchLoading
@@ -254,11 +254,10 @@ export default {
           await Promise.all(promises)
           const response = await getMatchesData(allMatchData)
   
-          if(response) {
-            this.$store.commit('onMatchesData', response)
-            this.$store.commit('onSearchedPage', stateSearched[this.page - 1] = true)
-          }
-  
+          
+          this.$store.commit('onMatchesData', response)
+          this.$store.commit('onSearchedPage', stateSearched[this.page] = true)
+
           this.searchLoading = !this.searchLoading
           this.hideLoading()
 
