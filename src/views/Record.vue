@@ -231,7 +231,7 @@ export default {
     async getLoopMatchesData() {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page]) {
-        await this.filteredData()
+        this.playerData = await this.filteredData()
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -253,6 +253,7 @@ export default {
           this.$store.commit('onSearchedPage', stateSearched[this.page] = true)
 
           this.searchLoading = !this.searchLoading
+          this.playerData = this.filteredData()
           this.hideLoading()
 
         } catch (error) {
@@ -264,19 +265,26 @@ export default {
     },
 
     async filteredData() {
-      const dataSet = this.$store.getters.matchesData[this.page - 1]
+      const observerData = this.$store.state.matchesData[this.page - 1]
+      const dataSet = JSON.parse(JSON.stringify(observerData))
       this.playerData = {};
       console.log(dataSet)
-      // for(let key in dataSet) {
-      //   this.playerData[key] = [];
-      //   const teamMate = [];
+      let dataArray = {}
 
-      //   console.log("이게 뭘까", dataSet)
+      for(let user in dataSet) {
+        for(let i = 0; i < dataSet[user].length; i++) {
+          const createdAt = dataSet[user].map(item => item.data.attributes.createdAt)     
+          const mapName = dataSet[user].map(item => item.data.attributes.mapName)
+          const gameMode = dataSet[user].map(item => item.data.attributes.gameMode)
 
-        
-      //   this.playerData[key] = { "teamPlayer" : teamMate }
-      //   console.log(this.playerData[key])
-      // }
+          dataArray[user] = { 
+            date : createdAt,
+            map : mapName,
+            mode : gameMode
+          }
+        }
+      }
+      return dataArray
     },
 
     // async filteredPlayInfo() {
