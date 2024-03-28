@@ -150,7 +150,7 @@ import Leftdrawer from './Leftdrawer.vue'
         const auth = getAuth();
         auth.languageCode = 'korean';
         this.isHide = true;
-        this.$store.commit('onloading')
+        this.$store.commit('onloading', true)
         signInWithPopup(auth, provider)
           .then((result) => {
             let resultUserInfo = result.user;
@@ -160,7 +160,7 @@ import Leftdrawer from './Leftdrawer.vue'
             console.log(err)
           })
           .finally(() => {
-            this.$store.commit('onloading')
+            this.$store.commit('onloading', false)
             this.isHide = false;
             setPersistence(auth, browserSessionPersistence)
               .then(() => {})
@@ -172,7 +172,7 @@ import Leftdrawer from './Leftdrawer.vue'
         firebase;
         const auth = getAuth();
         signOut(auth).then(() => {
-          this.$store.commit('delUserInfo')
+          this.$store.commit('delUserInfo', undefined)
           console.log('정상적으로 로그아웃 되었습니다.')
         }).catch(() => {
         }).finally(() => {
@@ -192,7 +192,7 @@ import Leftdrawer from './Leftdrawer.vue'
         })
       },
       onToggle() {
-        this.$store.commit('onToggleDrawer')
+        this.$store.commit('onToggleDrawer', false)
       },
     }
   }
