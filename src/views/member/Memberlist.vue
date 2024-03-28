@@ -39,7 +39,7 @@
         <v-toolbar
           flat
         >
-        <v-row>총 인원 : {{ $store.state.memberList.length }}명</v-row>
+        <v-row>총 인원 : {{ memberList.length }}명</v-row>
           <v-spacer></v-spacer>
           <template class="d-flex flex-row justify-end pa-0">
             <v-col
