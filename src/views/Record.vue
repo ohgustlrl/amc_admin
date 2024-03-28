@@ -58,7 +58,12 @@
               최근 2주간 플레이 이력이 없습니다.
             </span>
             <template v-else>
-
+              <v-data-table
+                :headers="recodHeaders"
+                :items="playerData"
+                :items-per-page="5"
+                class="elevation-1"
+              ></v-data-table>
             </template>
           </v-expansion-panel-content>
         </v-expansion-panel>
