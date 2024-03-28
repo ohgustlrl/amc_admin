@@ -16,6 +16,7 @@ export const store = new Vuex.Store({
     managerList: [],
     matchesData : [],
     searchedPages : [],
+    userInfo : undefined,
   },
   getters: {
     matchesData : state => {
