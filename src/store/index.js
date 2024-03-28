@@ -23,17 +23,17 @@ export const store = new Vuex.Store({
     }
   },
   mutations: {
-    onToggleDrawer(state) {
-      state.drawer = !state.drawer;
+    onToggleDrawer(state, boolean) {
+      state.drawer = boolean;
     },
     setUserInfo(state, user) {
       state.userInfo = user;
     },
-    delUserInfo(state) {
-      state.userInfo = undefined;
+    delUserInfo(state, data) {
+      state.userInfo = data;
     },
-    onloading(state) {
-      state.loading = !state.loading;
+    onloading(state, boolean) {
+      state.loading = boolean;
     },
     onMemberList(state, data) {
       state.memberList = data
