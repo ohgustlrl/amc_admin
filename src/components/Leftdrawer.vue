@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-      v-model="$store.state.drawer"
+      v-model="drawer"
       width="300"
       app
       temporary
@@ -93,11 +93,25 @@
 <script>
   export default {
     name: 'Left_drawer',
-
+    props: ['drawerProp'],
     data() {
       return {
-        selectedItem: 1
+        selectedItem: 1,
+        drawer : this.drawerProp
       }
+    },
+    created() {
+    },
+    watch: {
+      drawerProp() {
+        this.drawer = this.drawerProp
+      },
+      drawer(newValue) {
+        this.$emit('drawer', newValue)
+      }
+    },
+    methods: {
+
     },
   }
 </script>

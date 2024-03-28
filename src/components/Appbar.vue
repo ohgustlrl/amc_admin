@@ -6,7 +6,7 @@
       fixed
       height="78"
     >
-      <v-app-bar-nav-icon @click.stop="onToggle"/>
+      <v-app-bar-nav-icon @click="drawer = !drawer"/>
       <v-avatar
         size="50"
       >
@@ -25,21 +25,20 @@
         style="right: 12px !important;"
       >
         <template v-slot:activator="{ on, attrs }">
-          <v-progress-circular
-              indeterminate
-              color="primary"
-              v-show="$store.state.loading === true"
-          ></v-progress-circular>
           <v-btn 
             icon 
             v-bind="attrs"
             v-on="on"
           >
-            <v-icon v-if="$store.state.userInfo === undefined" :class="isHide ? 'd-none' : ''">mdi-account</v-icon>
+            <v-icon 
+              v-if="$store.state.userInfo === undefined"
+            >
+              mdi-account
+            </v-icon>
             <v-img
+              v-else
               :src="$store.state.userInfo.photoURL" 
               absolute
-              v-else
               style="border-radius : 50%"
             >
             </v-img>
@@ -112,7 +111,10 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-    <Leftdrawer></Leftdrawer>
+    <Leftdrawer
+      :drawerProp = drawer
+      @drawer="handleDrawerChnage"
+    />
   </div>
 </template>
 
@@ -134,7 +136,7 @@ import Leftdrawer from './Leftdrawer.vue'
 
     data() {
       return {
-        isHide: false
+        drawer : false
       }
     },
     components: {
@@ -149,21 +151,15 @@ import Leftdrawer from './Leftdrawer.vue'
         const provider = new GoogleAuthProvider();
         const auth = getAuth();
         auth.languageCode = 'korean';
-        this.isHide = true;
-        this.$store.commit('onloading', true)
         signInWithPopup(auth, provider)
-          .then((result) => {
+          .then(result => {
             let resultUserInfo = result.user;
             this.$store.commit('setUserInfo', resultUserInfo)
+            setPersistence(auth, browserSessionPersistence)
+              .then(() => {})
           })
           .catch((err) => {
             console.log(err)
-          })
-          .finally(() => {
-            this.$store.commit('onloading', false)
-            this.isHide = false;
-            setPersistence(auth, browserSessionPersistence)
-              .then(() => {})
           })
       },
 
@@ -176,24 +172,12 @@ import Leftdrawer from './Leftdrawer.vue'
           console.log('정상적으로 로그아웃 되었습니다.')
         }).catch(() => {
         }).finally(() => {
-          this.isHide = false;
         })
       },
 
-      // 앱 초기화 시 로그인 정보가 있는지 확인.
-      init() {
-        firebase;
-        const auth = getAuth();
-        auth.languageCode = 'ko';
-        auth.onAuthStateChanged(auth, (user) => {
-          if (user) {
-            console.log(user)
-          } 
-        })
-      },
-      onToggle() {
-        this.$store.commit('onToggleDrawer', false)
-      },
+      handleDrawerChnage(newValue) {
+        this.drawer = newValue
+      }
     }
   }
 </script>
