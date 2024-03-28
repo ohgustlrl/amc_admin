@@ -220,10 +220,10 @@
 </template>
 
 <script>
-import firebase from '@/plugins/firebase'
-import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore/lite'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import firebase from '@/plugins/firebase'
+import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -236,6 +236,7 @@ export default {
       dialog: false,
       dialogDelete: false,
       search: '',
+      memberList : null,
       headers: [
         { text: '닉네임', align: 'start', value: 'name' },
         { text: '성별', align: 'start', value: 'sex' },
@@ -309,11 +310,7 @@ export default {
 
   methods: {
     async getMembers() {
-      const db = getFirestore(firebase)
-      const memberCol = collection(db, 'members');
-      const memberSnapShot = await getDocs(memberCol);
-      this.$store.state.memberList = memberSnapShot.docs.map(doc => doc.data());
-      return
+      this.memberList = this.$store.state.memberList
     },
     
     editItem (item) {
