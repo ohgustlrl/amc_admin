@@ -237,7 +237,7 @@ export default {
     async getLoopMatchesData() {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page - 1]) {
-        await this.filteredCreatedAt()
+        await this.filteredData()
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -270,22 +270,20 @@ export default {
       }
     },
 
-    async filteredCreatedAt() {
+    async filteredData() {
       const dataSet = this.$store.getters.matchesData[this.page - 1]
-      console.log(dataSet)
       this.playerData = {};
-      
-      for(let key in dataSet) {
-        const dataArray = [];
+      console.log(dataSet)
+      // for(let key in dataSet) {
+      //   this.playerData[key] = [];
+      //   const teamMate = [];
 
-        dataSet[key].forEach(el => {
-          let createdAt = el.data.attributes.createdAt
-          dataArray.push(dayjs(createdAt).format("YYYY-MM-DD"))
+      //   console.log("이게 뭘까", dataSet)
 
-        });
         
-        this.playerData[key] = { date : dataArray }
-      }
+      //   this.playerData[key] = { "teamPlayer" : teamMate }
+      //   console.log(this.playerData[key])
+      // }
     },
 
     // async filteredPlayInfo() {
