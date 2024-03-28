@@ -87,8 +87,6 @@
 // 5. 4번의 id를 data > included 에서 조회 하여 일치하는 객체의 name 을 뽑는다
 
 // import { apikey } from '../pubgClientConfig'
-import firebase from '@/plugins/firebase'
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
 import { getMatchesData, getAccntIds } from '../API/pubg'
 import dayjs from 'dayjs'
 
@@ -141,10 +139,6 @@ export default {
      */    
     async getMembers() {
       this.showLoading()
-      const db = getFirestore(firebase)
-      const memberCol = collection(db, 'members');
-      const memberSnapShot = await getDocs(memberCol);
-      this.$store.commit('onMemberList', memberSnapShot.docs.map(doc => doc.data()));
       this.members = this.$store.state.memberList
 
       if(!this.membersArrayDivisionExecuted) {
