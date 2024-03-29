@@ -237,7 +237,8 @@ export default {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page]) {
         this.playerData = await this.filteredData()
-        await this.filteredTeamMate()
+        let teamMateArr = await this.filteredTeamMate()
+        console.log("함수로 반환한 팀원 아이디", teamMateArr)
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -260,7 +261,8 @@ export default {
 
           this.searchLoading = !this.searchLoading
           this.playerData = this.filteredData()
-          await this.filteredTeamMate()
+          let teamMateArr = await this.filteredTeamMate()
+          console.log("함수로 반환한 팀원 아이디", teamMateArr)
           this.hideLoading()
 
         } catch (error) {
@@ -271,6 +273,10 @@ export default {
       }
     },
 
+    /**
+     * 매치 데이터에서 필요한 정보를 필터링 하는 함수
+     * 해당 필터링을 통해, 플레이 일자, map, mode를 확인할 수 있다.
+     */
     async filteredData() {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
@@ -294,45 +300,75 @@ export default {
       return dataArray
     },
 
-
+    /**
+     * 매치 데이터에서 필요한 정보를 필터링 하는 함수
+     * 복잡하지만 단순히 유저가 속한 팀원정보가 담긴 데이터를 반환하는 함수
+     * 내부 주석들을 참고
+     */
     async filteredTeamMate() {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
-      const matchIndexId = []
-      const rosters = []
-      let participantId = []
-      // let rosterInUserIndex = []
+      const rostersArray = {}
+      const participantId = {}
+      let matchIndexId = []
+      let rosterInUserIndex = []
+      let allTeamPlayerPartiId = {}
+      // 게임데이터가 있는 유저들을 모두 순회하기 위한 for in
       for(let user in dataSet) {
+
+        // 내부에서 가공될 데이터의 변수들을 초기화
+        allTeamPlayerPartiId[user] = allTeamPlayerPartiId[user] || [] 
+        participantId[user] = participantId[user] || []
+        matchIndexId = []
+        rostersArray[user] = rostersArray[user] || []
+
+        // 유저가 플레이한 횟수만큼 씩 반복시킴
         for(let i = 0; i < dataSet[user].length; i++) {
+
+          // 해당 반복문에서 유저의 included의 모든 데이터,
+          // included 내 type의 따라 participant, roster의 목록을 분리하여
+          // 변수에 담아둠
           let includedData = dataSet[user][i].included
           let participant = includedData.filter(obj => 
             obj.type === 'participant'
           )
-          rosters.push(includedData.filter(obj => 
+          let rosters = includedData.filter(obj => 
             obj.type === 'roster'
-          ))
+          )
+
+          // 아래 for문을 통해 유저의 정보가 담긴 participant 데이터를 찾고
+          // 해당 인덱스를 통해서 유저의 participant의 고유 id값을 얻어낸다.
           for(let k = 0; k < participant.length; k++) {
             if(participant[k].attributes.stats.name === user) {
-              let userInIndex = k
-              matchIndexId.push(participant[userInIndex].id)
+              matchIndexId.push(participant[k].id)
             }
           }
           let realIndex = includedData.findIndex(el => el.id === matchIndexId[i])
-          participantId.push(includedData[realIndex].id)
-        }
-        for(let j = 0; j < rosters[j].length; j++) {
-          let rostersInData = rosters[j][j].relationships.participants.data
-          rostersInData
-
-          if(rosters[j][j].relationships.participants.data.findIndex(el => el.id === participantId[j])) {
-            let matchindex = j
-            matchindex
-            console.log("로스터목록",rosters)
-            console.log("매칭인덱스",matchindex)
-            // console.log("파티시팬트Id", participantId[j])
+          let partiObj = includedData[realIndex]
+          for (let key in partiObj) {
+            if(key === 'id') {
+              participantId[user].push(partiObj[key]) 
+            }
           }
+
+          // 아래 for 문은 윗쪽에서 변수에 담아 둔 rosters 리스트와 유저의 participant ID를 통해
+          // 유저가 속한 rosters정보를 찾고, 내부에 담겨있는 모든 팀원들의 participant ID를 획득 
+          for(let j = 0; j < rosters.length; j++) {
+            let rostersInData = rosters.map(el => el.relationships.participants.data)
+            let findItem = rostersInData[j].find(el => el.id === participantId[user][i])
+
+            if(findItem) {
+              rosterInUserIndex.push(j)
+              allTeamPlayerPartiId[user].push(rosters[j].relationships.participants.data)
+            }
+          }
+
+          // for(let n = 0; n < allTeamPlayerPartiId[user].length; n++) {
+          //   console.log(`${user}  ${n}`, participant[n].id)
+          // }
         }
       }
+      return allTeamPlayerPartiId
     },
 
     showLoading() {
