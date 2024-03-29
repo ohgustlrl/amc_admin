@@ -237,6 +237,7 @@ export default {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page]) {
         this.playerData = await this.filteredData()
+        await this.filteredTeamMate()
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -259,6 +260,7 @@ export default {
 
           this.searchLoading = !this.searchLoading
           this.playerData = this.filteredData()
+          await this.filteredTeamMate()
           this.hideLoading()
 
         } catch (error) {
@@ -273,7 +275,7 @@ export default {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       this.playerData = {};
-      console.log(dataSet)
+      console.log("원본데이터", dataSet)
       let dataArray = {}
 
       for(let user in dataSet) {
@@ -292,24 +294,40 @@ export default {
       return dataArray
     },
 
-    // async filteredPlayInfo() {
-    //   const dataSet = this.$store.getters.matchesData
-      
-    //   for(let key in dataSet){
-    //     const mapArray = [];
-    //     const modeArray = [];
-        
-    //     dataSet[key].forEach(el => {
-    //       let mapName = el.data.attributes.mapName
-    //       let gameMode = el.data.attributes.gameMode
 
-    //       mapArray.push(mapName)
-    //       modeArray.push(gameMode)
-    //     })
-
-    //     Object.assign(this.playerData[key], { mapName : mapArray, gameMode : modeArray })
-    //   }
-    // },
+    async filteredTeamMate() {
+      const observerData = this.$store.state.matchesData[this.page - 1]
+      const dataSet = JSON.parse(JSON.stringify(observerData))
+      const matchIndexId = []
+      const rosters = []
+      let inGameId = []
+      for(let user in dataSet) {
+        for(let i = 0; i < dataSet[user].length; i++) {
+          let includedData = dataSet[user][i].included
+          let participant = includedData.filter(obj => 
+            obj.type === 'participant'
+          )
+          rosters.push(includedData.filter(obj => 
+            obj.type === 'roster'
+          ))
+          for(let k = 0; k < participant.length; k++) {
+            if(participant[k].attributes.stats.name === user) {
+              let userInIndex = k
+              matchIndexId.push(participant[userInIndex].id)
+            }
+          }
+          let realIndex = includedData.findIndex(el => el.id === matchIndexId[i])
+          inGameId.push(includedData[realIndex].attributes.stats.playerId)
+        }
+        for(let j = 0; j < rosters[j].length; j++) {
+          let rostersInData = rosters[j][j].relationships.participants.data
+          console.log("외부로 뺀 인게임 아이디", inGameId)
+          
+          let rosterInUser = rostersInData.findIndex(el => el.id === inGameId[0])
+          console.log(rosterInUser)
+        }
+      }
+    },
 
     showLoading() {
       this.isHide = true
