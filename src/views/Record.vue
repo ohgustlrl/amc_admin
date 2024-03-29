@@ -300,7 +300,8 @@ export default {
       const dataSet = JSON.parse(JSON.stringify(observerData))
       const matchIndexId = []
       const rosters = []
-      let inGameId = []
+      let participantId = []
+      // let rosterInUserIndex = []
       for(let user in dataSet) {
         for(let i = 0; i < dataSet[user].length; i++) {
           let includedData = dataSet[user][i].included
@@ -317,14 +318,19 @@ export default {
             }
           }
           let realIndex = includedData.findIndex(el => el.id === matchIndexId[i])
-          inGameId.push(includedData[realIndex].attributes.stats.playerId)
+          participantId.push(includedData[realIndex].id)
         }
         for(let j = 0; j < rosters[j].length; j++) {
           let rostersInData = rosters[j][j].relationships.participants.data
-          console.log("외부로 뺀 인게임 아이디", inGameId)
-          
-          let rosterInUser = rostersInData.findIndex(el => el.id === inGameId[0])
-          console.log(rosterInUser)
+          rostersInData
+
+          if(rosters[j][j].relationships.participants.data.findIndex(el => el.id === participantId[j])) {
+            let matchindex = j
+            matchindex
+            console.log("로스터목록",rosters)
+            console.log("매칭인덱스",matchindex)
+            // console.log("파티시팬트Id", participantId[j])
+          }
         }
       }
     },
