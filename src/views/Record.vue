@@ -60,7 +60,7 @@
             <template v-else>
               <v-data-table
                 :headers="recodHeaders"
-                :items="playerData"
+                :items="playerData[item.steamid]"
                 :items-per-page="5"
                 class="elevation-1"
               ></v-data-table>
@@ -236,9 +236,12 @@ export default {
     async getLoopMatchesData() {
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page]) {
-        this.playerData = await this.filteredData()
+        let gameData = await this.filteredData()
         let teamMateArr = await this.filteredTeamMate()
-        console.log("함수로 반환한 팀원 아이디", teamMateArr)
+        let steamIdNames = await this.findFilterName(teamMateArr)
+        let fullData = await this.mergeData(gameData, steamIdNames)
+        console.log("모든데이터",fullData)
+        this.playerData = await this.setFormattedData(fullData)
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -260,9 +263,12 @@ export default {
           this.$store.commit('onSearchedPage', stateSearched[this.page] = true)
 
           this.searchLoading = !this.searchLoading
-          this.playerData = this.filteredData()
+          let gameData = this.filteredData()
           let teamMateArr = await this.filteredTeamMate()
-          console.log("함수로 반환한 팀원 아이디", teamMateArr)
+          let steamIdNames = await this.findFilterName(teamMateArr)
+          let fullData = await this.mergeData(gameData, steamIdNames)
+          console.log("완전데이터",fullData)
+          this.playerData = await this.setFormattedData(fullData)
           this.hideLoading()
 
         } catch (error) {
@@ -369,6 +375,92 @@ export default {
         }
       }
       return allTeamPlayerPartiId
+    },
+
+    async findFilterName(userObj) {
+      const observerData = this.$store.state.matchesData[this.page - 1]
+      const dataSet = JSON.parse(JSON.stringify(observerData))
+      let participantList = []
+      let partiMemberNames = []
+      for(let user in dataSet) {
+        participantList[user] = participantList[user] || []
+        partiMemberNames[user] = partiMemberNames[user] || []
+        
+        // 유저가 플레이한 횟수만큼 씩 반복시킴
+        for(let i = 0; i < dataSet[user].length; i++) {
+          
+          // 해당 반복문에서 유저의 included의 모든 데이터,
+          // included 내 type의 따라 participant, roster의 목록을 분리하여
+          // 변수에 담아둠
+          let includedData = dataSet[user][i].included
+          let parti = includedData.filter(obj => 
+            obj.type === 'participant'
+          )
+          participantList[user].push(parti)
+        }
+        let userData = userObj[user]
+
+        let id = {}
+        userData.forEach((element) => {
+          element.forEach(obj => {
+            id = obj.id
+            const mainArrary = participantList[user]
+            mainArrary.forEach(subArray => {
+              subArray.forEach(obj => {
+                if(obj.id === id) {
+                  partiMemberNames[user].push(obj.attributes.stats.name)
+                }
+              })
+            })
+          })
+          // for(let j = 0; j < participantList[user][j].length; j++) {
+            //   console.log("J는 몇까지 찍힘?", j)
+          //   const userInPartiList = participantList[user][j]
+          //   userInPartiList.forEach((el) => {
+            //     if(el.id === id) {
+              //       partiMemberNames[user].push(el.attributes.stats.name)
+          //     }
+          //   })
+          // }
+        });
+      }
+      return partiMemberNames
+    },
+
+    async mergeData(obj1, obj2) {
+      for(const key in obj2) {
+        obj1[key].team = obj2[key]
+      }
+
+      let parserObj = JSON.parse(JSON.stringify(obj1))
+      return parserObj
+    },
+
+    async setFormattedData(data) {
+      const formattedData = {}
+
+      for(const key in data) {
+       for(const subKey in data[key]) {
+         formattedData[subKey] = {}
+         console.log(data[key][subKey])
+         data[key].team.forEach((item, index) => {
+          const date = data[key].date[index]
+          const map = data[key].map[index]
+          const mode = data[key].mode[index]
+          if(mode === "duo") {
+            formattedData[date] = date
+            formattedData[map] = map
+            formattedData[mode] = mode
+            // formattedData[team] = data[key].team.slice(index, index + 2).join(", ")
+          } else {
+            formattedData[date] = date
+            formattedData[map] = map
+            formattedData[mode] = mode
+            // formattedData[team] = data[key].team.slice(index, index + 4).join(", ")
+          }
+         })
+        }
+      }
     },
 
     showLoading() {
