@@ -57,6 +57,14 @@
               ></v-select>
             </v-col>
           </template>
+          <v-btn
+            color="primary"
+            dark
+            class="mb-2 mr-2"
+            @click="getDiscordMemberList()"
+          >
+            디스코드 멤버 가져오기
+          </v-btn>
           <v-dialog
             v-model="dialog"
             max-width="500px"
@@ -224,6 +232,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from '@/plugins/firebase'
 import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
+import {getDiscordMemberListAPI} from '../../API/discord'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -236,6 +245,7 @@ export default {
       dialog: false,
       dialogDelete: false,
       search: '',
+      dcMemberList : null,
       memberList : null,
       headers: [
         { text: '닉네임', align: 'start', value: 'name' },
@@ -378,7 +388,12 @@ export default {
     },
     getItemControl() {
       return `item.actions`
-    }
+    },
+
+    async getDiscordMemberList() {
+      this.dcMemberList = await getDiscordMemberListAPI();
+      console.log("디코 멤버 리스트", this.dcMemberList)
+    },
   },
 };
 </script>
