@@ -451,7 +451,6 @@ export default {
           })
         }
       })
-      console.log("포매팅 데이터",formattedData)
       return formattedData
     },
 
