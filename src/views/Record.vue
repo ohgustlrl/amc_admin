@@ -109,10 +109,10 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       recodHeaders: [
-          { text: '날짜', align: 'start', value: 'date', sortable: true },
+          { text: '플레이 일자', align: 'start', value: 'date', sortable: true },
           { text: '맵', value: 'map', sortable: false },
           { text: '모드', value: 'mode', sortable: false },
-          { text: '팀원', value: 'teamPlayer', sortable: false },
+          { text: '팀원', value: 'team', sortable: false },
         ],
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
@@ -240,8 +240,8 @@ export default {
         let teamMateArr = await this.filteredTeamMate()
         let steamIdNames = await this.findFilterName(teamMateArr)
         let fullData = await this.mergeData(gameData, steamIdNames)
-        console.log("모든데이터",fullData)
         this.playerData = await this.setFormattedData(fullData)
+        console.log("컴포넌트 전역변수에 왜 안들어갈까?", this.playerData)
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -267,8 +267,8 @@ export default {
           let teamMateArr = await this.filteredTeamMate()
           let steamIdNames = await this.findFilterName(teamMateArr)
           let fullData = await this.mergeData(gameData, steamIdNames)
-          console.log("완전데이터",fullData)
-          this.playerData = await this.setFormattedData(fullData)
+          this.playerData = await this.setFormattedData(fullData) 
+          console.log("컴포넌트 전역변수에 왜 안들어갈까?", this.playerData)
           this.hideLoading()
 
         } catch (error) {
@@ -287,7 +287,6 @@ export default {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       this.playerData = {};
-      console.log("원본데이터", dataSet)
       let dataArray = {}
 
       for(let user in dataSet) {
@@ -368,10 +367,6 @@ export default {
               allTeamPlayerPartiId[user].push(rosters[j].relationships.participants.data)
             }
           }
-
-          // for(let n = 0; n < allTeamPlayerPartiId[user].length; n++) {
-          //   console.log(`${user}  ${n}`, participant[n].id)
-          // }
         }
       }
       return allTeamPlayerPartiId
@@ -413,15 +408,6 @@ export default {
               })
             })
           })
-          // for(let j = 0; j < participantList[user][j].length; j++) {
-            //   console.log("J는 몇까지 찍힘?", j)
-          //   const userInPartiList = participantList[user][j]
-          //   userInPartiList.forEach((el) => {
-            //     if(el.id === id) {
-              //       partiMemberNames[user].push(el.attributes.stats.name)
-          //     }
-          //   })
-          // }
         });
       }
       return partiMemberNames
@@ -437,30 +423,36 @@ export default {
     },
 
     async setFormattedData(data) {
-      const formattedData = {}
+      const formattedData = []
 
-      for(const key in data) {
-       for(const subKey in data[key]) {
-         formattedData[subKey] = {}
-         console.log(data[key][subKey])
-         data[key].team.forEach((item, index) => {
-          const date = data[key].date[index]
-          const map = data[key].map[index]
-          const mode = data[key].mode[index]
-          if(mode === "duo") {
-            formattedData[date] = date
-            formattedData[map] = map
-            formattedData[mode] = mode
-            // formattedData[team] = data[key].team.slice(index, index + 2).join(", ")
-          } else {
-            formattedData[date] = date
-            formattedData[map] = map
-            formattedData[mode] = mode
-            // formattedData[team] = data[key].team.slice(index, index + 4).join(", ")
-          }
-         })
+      const objToArray = Object.entries(data)
+
+      objToArray.forEach(el => {
+        let arrayName = el[0]
+        formattedData[arrayName] = []
+        for(const key in el[1]) { 
+          key
+          el[1].team.forEach((item, index) => {
+            const date = el[1].date[index]
+            const map = el[1].map[index]
+            const mode = el[1].mode[index]
+            let team = null
+            if(mode === 'duo') {
+              team = el[1].team.slice(index, index + 2).join(", ")
+            } else {
+              team = el[1].team.slice(index, index + 4).join(", ")
+            }
+            formattedData[arrayName].push({
+              date : dayjs(date).format("YYYY-MM-DD") || '',
+              map,
+              mode,
+              team
+            })
+          })
         }
-      }
+      })
+      console.log("포매팅 데이터",formattedData)
+      return formattedData
     },
 
     showLoading() {
