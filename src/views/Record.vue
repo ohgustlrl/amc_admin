@@ -234,14 +234,15 @@ export default {
      * API 서버에 보내고, match의 상세정보를 받아오는 함수
      */
     async getLoopMatchesData() {
+      this.playerData = []
       let stateSearched = this.$store.state.searchedPages
       if(stateSearched[this.page]) {
         let gameData = await this.filteredData()
         let teamMateArr = await this.filteredTeamMate()
         let steamIdNames = await this.findFilterName(teamMateArr)
         let fullData = await this.mergeData(gameData, steamIdNames)
-        this.playerData = await this.setFormattedData(fullData)
-        console.log("컴포넌트 전역변수에 왜 안들어갈까?", this.playerData)
+        let itemData = await this.setFormattedData(fullData)
+        this.playerData.push(...itemData)
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -263,16 +264,16 @@ export default {
           this.$store.commit('onSearchedPage', stateSearched[this.page] = true)
 
           this.searchLoading = !this.searchLoading
-          let gameData = this.filteredData()
+          let gameData = await this.filteredData()
           let teamMateArr = await this.filteredTeamMate()
           let steamIdNames = await this.findFilterName(teamMateArr)
           let fullData = await this.mergeData(gameData, steamIdNames)
-          this.playerData = await this.setFormattedData(fullData) 
-          console.log("컴포넌트 전역변수에 왜 안들어갈까?", this.playerData)
+          let itemData = await this.setFormattedData(fullData)
+          this.playerData.push(...itemData)
           this.hideLoading()
 
         } catch (error) {
-          console.log(error)
+          console.error(error)
           this.searchLoading = !this.searchLoading
           this.hideLoading()
         }
@@ -414,7 +415,11 @@ export default {
     },
 
     async mergeData(obj1, obj2) {
+      console.log("obj1", obj1)
+      console.log("obj2", obj2)
+      
       for(const key in obj2) {
+        console.log(`${obj1[key].team}`)
         obj1[key].team = obj2[key]
       }
 
