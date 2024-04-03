@@ -242,7 +242,7 @@ export default {
         let steamIdNames = await this.findFilterName(teamMateArr)
         let fullData = await this.mergeData(gameData, steamIdNames)
         let itemData = await this.setFormattedData(fullData)
-        this.playerData.push(...itemData)
+        console.log("아이템으로 사용할 데이터",itemData)
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -269,7 +269,8 @@ export default {
           let steamIdNames = await this.findFilterName(teamMateArr)
           let fullData = await this.mergeData(gameData, steamIdNames)
           let itemData = await this.setFormattedData(fullData)
-          this.playerData.push(...itemData)
+          this.playerData = itemData
+          console.log("아이템으로 사용할 데이터",itemData)
           this.hideLoading()
 
         } catch (error) {
@@ -287,7 +288,6 @@ export default {
     async filteredData() {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
-      this.playerData = {};
       let dataArray = {}
 
       for(let user in dataSet) {
@@ -303,6 +303,8 @@ export default {
           }
         }
       }
+
+      console.log("매치데이터 기본정보", dataArray)
       return dataArray
     },
 
@@ -419,7 +421,6 @@ export default {
       console.log("obj2", obj2)
       
       for(const key in obj2) {
-        console.log(`${obj1[key].team}`)
         obj1[key].team = obj2[key]
       }
 
@@ -442,9 +443,11 @@ export default {
             const map = el[1].map[index]
             const mode = el[1].mode[index]
             let team = null
-            if(mode === 'duo') {
+            if(mode === 'solo') {
+              team = el[1].team.slice(index, index + 1).join(", ")
+            } else if(mode === 'duo') {
               team = el[1].team.slice(index, index + 2).join(", ")
-            } else {
+            } else if(mode === 'squad') {
               team = el[1].team.slice(index, index + 4).join(", ")
             }
             formattedData[arrayName].push({
@@ -456,6 +459,7 @@ export default {
           })
         }
       })
+      console.log("포매팅 데이터", formattedData)
       return formattedData
     },
 
