@@ -63,7 +63,7 @@
             class="mb-2 mr-2"
             @click="getDiscordMemberList()"
           >
-            디스코드 멤버 업데이트
+            멤버 업데이트
           </v-btn>
         </v-toolbar>
       </template>
