@@ -109,10 +109,10 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       recodHeaders: [
-          { text: '플레이 일자', align: 'start', value: 'date', sortable: true },
-          { text: '맵', value: 'map', sortable: false },
-          { text: '모드', value: 'mode', sortable: false },
-          { text: '팀원', value: 'team', sortable: false },
+          { text: '플레이 일자', align: 'center', value: 'date', sortable: true, width: 120 },
+          { text: '맵', value: 'map', sortable: false, width: 100 },
+          { text: '모드', value: 'mode', sortable: false, width: 150 },
+          { text: '팀원', value: 'team', sortable: false, width: "auto" },
         ],
       result : [],
       baseUrl : 'https://api.pubg.com/shards/steam/',
@@ -242,7 +242,7 @@ export default {
         let steamIdNames = await this.findFilterName(teamMateArr)
         let fullData = await this.mergeData(gameData, steamIdNames)
         let itemData = await this.setFormattedData(fullData)
-        console.log("아이템으로 사용할 데이터",itemData)
+        this.playerData = itemData
       } else {
         this.searchLoading = !this.searchLoading
         this.showLoading()
@@ -270,7 +270,6 @@ export default {
           let fullData = await this.mergeData(gameData, steamIdNames)
           let itemData = await this.setFormattedData(fullData)
           this.playerData = itemData
-          console.log("아이템으로 사용할 데이터",itemData)
           this.hideLoading()
 
         } catch (error) {
