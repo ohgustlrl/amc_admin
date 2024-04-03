@@ -436,28 +436,48 @@ export default {
       objToArray.forEach(el => {
         let arrayName = el[0]
         formattedData[arrayName] = []
-        for(const key in el[1]) { 
-          key
-          el[1].team.forEach((item, index) => {
-            const date = el[1].date[index]
-            const map = el[1].map[index]
-            const mode = el[1].mode[index]
-            let team = null
-            if(mode === 'solo') {
-              team = el[1].team.slice(index, index + 1).join(", ")
-            } else if(mode === 'duo') {
+
+        for(let index = 0; index < el[1].team.length; index++) {
+          const date = el[1].date[index]
+          const map = el[1].map[index]
+          const mode = el[1].mode[index]
+          let team = null
+          if (mode === 'solo') {
+            team = el[1].team.slice(index, index + 1).join(", ")
+          } else if (mode === 'duo') {
               team = el[1].team.slice(index, index + 2).join(", ")
-            } else if(mode === 'squad') {
+          } else if (mode === 'squad') {
               team = el[1].team.slice(index, index + 4).join(", ")
-            }
-            formattedData[arrayName].push({
-              date : dayjs(date).format("YYYY-MM-DD") || '',
-              map,
-              mode,
-              team
-            })
+          }
+          formattedData[arrayName].push({
+            date : dayjs(date).format("YYYY-MM-DD") || '',
+            map,
+            mode,
+            team
           })
         }
+        // for(const key in el[1]) { 
+        //   key
+        //   for(let index = 0; index < el[1].team.length; index++) {
+        //     const date = el[1].date[index]
+        //     const map = el[1].map[index]
+        //     const mode = el[1].mode[index]
+        //     let team = null
+        //     if(mode === 'solo') {
+        //       team = el[1].team.slice(index, index + 1).join(", ")
+        //     } else if(mode === 'duo') {
+        //       team = el[1].team.slice(index, index + 2).join(", ")
+        //     } else if(mode === 'squad') {
+        //       team = el[1].team.slice(index, index + 4).join(", ")
+        //     }
+        //     formattedData[arrayName].push({
+        //       date : dayjs(date).format("YYYY-MM-DD") || '',
+        //       map,
+        //       mode,
+        //       team
+        //     })
+        //   }
+        // }
       })
       console.log("포매팅 데이터", formattedData)
       return formattedData
