@@ -432,12 +432,13 @@ export default {
       const formattedData = []
 
       const objToArray = Object.entries(data)
+      console.log(objToArray)
 
       objToArray.forEach(el => {
         let arrayName = el[0]
         formattedData[arrayName] = []
 
-        for(let index = 0; index < el[1].team.length; index++) {
+        for(let index = 0; index < el[1].date.length; index++) {
           const date = el[1].date[index]
           const map = el[1].map[index]
           const mode = el[1].mode[index]
@@ -451,36 +452,43 @@ export default {
           }
           formattedData[arrayName].push({
             date : dayjs(date).format("YYYY-MM-DD") || '',
-            map,
-            mode,
-            team
+            map : this.mapNameToKorean(map),
+            mode : mode === "ibr" ? "인텐스 배틀로얄" : mode,
+            team : team === null ? "팀원을 확인할 수 없습니다" : team
           })
         }
-        // for(const key in el[1]) { 
-        //   key
-        //   for(let index = 0; index < el[1].team.length; index++) {
-        //     const date = el[1].date[index]
-        //     const map = el[1].map[index]
-        //     const mode = el[1].mode[index]
-        //     let team = null
-        //     if(mode === 'solo') {
-        //       team = el[1].team.slice(index, index + 1).join(", ")
-        //     } else if(mode === 'duo') {
-        //       team = el[1].team.slice(index, index + 2).join(", ")
-        //     } else if(mode === 'squad') {
-        //       team = el[1].team.slice(index, index + 4).join(", ")
-        //     }
-        //     formattedData[arrayName].push({
-        //       date : dayjs(date).format("YYYY-MM-DD") || '',
-        //       map,
-        //       mode,
-        //       team
-        //     })
-        //   }
-        // }
       })
       console.log("포매팅 데이터", formattedData)
       return formattedData
+    },
+
+    mapNameToKorean(engName) {
+      switch (engName) {
+        case "Desert_Main":
+          return "미라마"
+        case "DihorOtok_Main":
+          return "비켄디"
+        case "Erangel_Main":
+          return "에란겔"
+        case "Baltic_Main":
+          return "에란겔"
+        case "Range_Main":
+          return "캠프 자칼"
+        case "Savage_Main":
+          return "사녹"
+        case "Summerland_Main":
+          return "카라킨"
+        case "Tiger_Main":
+          return "태이고"
+        case "Neon_Main":
+          return "론도"
+        case "Chimera_Main":
+          return "파라모"
+        case "Heaven_Main":
+          return "헤이븐"
+        case "Kiki_Main":
+          return "데스턴"
+      }
     },
 
     showLoading() {
