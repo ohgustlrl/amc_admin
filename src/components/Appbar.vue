@@ -44,48 +44,14 @@
             </v-img>
           </v-btn>
         </template>
-        <v-list v-if="$store.state.userInfo === undefined">
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>
-                헐?
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                아직 로그인을
-              </v-list-item-subtitle>
-              <v-list-item-subtitle>
-                안하셨네요?
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>  
-          <v-divider />
-          <v-list nav>
-            <v-btn
-              small
-              elevation="2"
-              rounded
-              color="primary"
-              dark
-              @click="clickToLogin"
-            >
-              <v-icon
-                bottom
-                dark
-              >
-                mdi-google
-              </v-icon>
-              구글 로그인
-            </v-btn>
-          </v-list>
-        </v-list>
-        <v-list v-else>
+        <v-list>
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>
                 반가워요:)
               </v-list-item-title>
               <v-list-item-subtitle>
-                {{ $store.state.userInfo.displayName }}님
+                {{ userInfo.displayName }}님
               </v-list-item-subtitle>
             </v-list-item-content> 
           </v-list-item>  
@@ -136,7 +102,8 @@ import Leftdrawer from './Leftdrawer.vue'
 
     data() {
       return {
-        drawer : false
+        drawer : false,
+        userInfo : null,
       }
     },
     components: {
@@ -144,7 +111,13 @@ import Leftdrawer from './Leftdrawer.vue'
     },
     computed: {
     },
+    created() {
+
+    },
     methods: {
+      getUserInfoState() {
+        this.userInfo = this.$store.state.userInfo
+      },
       //구글 OAUTH 로그인 한다. 
       clickToLogin() {
         firebase;
