@@ -12,9 +12,20 @@ export const getAccntIds = async (membersName) => {
 }
 
 
-export const getMatchesData = async (matchesInfo) => {
+export const getMatchesData = async (matchesInfo, progressCallback) => {
+  let progress = null
   try {
-    const res = await axios.post(`${baseUrl}match`, matchesInfo)
+    const res = await axios.post(`${baseUrl}match`, matchesInfo, {
+      onDownloadProgress: progressEvent => {
+        let loadedBytes = progressEvent.loaded
+        const totalBytes = progressEvent.total
+
+        progress = Math.round((loadedBytes / totalBytes) * 100)
+        Number(progress)
+
+        progressCallback(progress)
+      }
+  })
     return res.data
   } catch (error) {
     console.error(error)

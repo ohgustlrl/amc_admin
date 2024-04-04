@@ -17,6 +17,7 @@ export const store = new Vuex.Store({
     matchesData : [],
     searchedPages : {},
     userInfo : undefined,
+    isGetDataLoading : false,
   },
   getters: {
     matchesData : state => {
@@ -48,6 +49,9 @@ export const store = new Vuex.Store({
     onManagerList(state, data) {
       state.managerList = data
     },
+    onIsGetDataLoading(state, boolean) {
+      state.isGetDataLoading = boolean
+    }
   },
   actions: {},
   modules: {},

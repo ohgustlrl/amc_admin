@@ -33,14 +33,24 @@
     </v-row>
     <v-expansion-panels>
       <v-overlay :class="isHide === false ? 'd-none' : ''">
-        <v-progress-circular
-          :size="50"
-          color="primary"
-          indeterminate
-        >
-        </v-progress-circular>
-        <span v-if="!searchLoading">데이터를 가져오고 있습니다.</span>
-        <span v-else>유저의 매치 데이터 및 인터넷 상태에 따라 데이터 처리에 오랜 시간이 소요될 수 있습니다.</span>
+        <template v-if="!searchLoading">
+          <v-progress-circular
+            :size="50"
+            color="primary"
+            indeterminate
+          >
+          </v-progress-circular>
+          <span>데이터를 가져오고 있습니다.</span>
+        </template>
+        <template v-else>
+          <span>매치 데이터를 조회 후 다운로드 중 입니다.</span>
+          <v-progress-linear
+            v-model="progressPercentage"
+            height="25"
+          >
+            <strong>{{ progressPercentage }}%</strong>
+          </v-progress-linear>
+        </template>
       </v-overlay>
       <template>
         <v-expansion-panel
@@ -119,7 +129,9 @@ export default {
       isHide : false,
       membersArrayDivisionExecuted  : false,
       playerData : [],
-      searchLoading : false
+      searchLoading : false,
+      progressPercentage : 0,
+      whatsLoading: null,
     }
   },
   created() {
@@ -234,6 +246,8 @@ export default {
      * API 서버에 보내고, match의 상세정보를 받아오는 함수
      */
     async getLoopMatchesData() {
+      let isDataLoading = this.$store.state.isGetDataLoading
+      isDataLoading
       this.playerData = []
       let stateSearched = this.$store.state.searchedPages
       let page = this.page
@@ -258,7 +272,9 @@ export default {
           })
   
           await Promise.all(promises)
-          const response = await getMatchesData(allMatchData)
+          const response = await getMatchesData(allMatchData, progress => {
+            this.progressPercentage = progress
+          })
   
           let searchedPageCommitData = {}
           searchedPageCommitData[page] = true
@@ -273,7 +289,11 @@ export default {
           let fullData = await this.mergeData(gameData, steamIdNames)
           let itemData = await this.setFormattedData(fullData)
           this.playerData = itemData
-          this.hideLoading()
+
+          if(this.progressPercentage === 100) {
+            this.hideLoading()
+            this.progressPercentage = 0;
+          }
 
         } catch (error) {
           console.error(error)
