@@ -8,7 +8,7 @@
       style="background-color: #000000;"
       class="mx-auto"
       width="100%"
-      height="100%"
+      height="320px"
       src="https://media.discordapp.net/attachments/485360498200805387/1116717050191159397/02-Yellow_Profile.gif?ex=661933cc&is=6606becc&hm=30c7c55971ebf0fc7f702cae83a0f36ff584f7b41b17f019bf2dbabf2d96efb5&=&format=webp"
     ></v-img>
     <v-card-title>AMC ADMIN</v-card-title>
@@ -36,9 +36,9 @@ import
   getAuth,
   GoogleAuthProvider, 
   signInWithPopup,
+  signInWithRedirect 
 } from 'firebase/auth'
-
-import router from 'vue-router';
+import firebase from '../plugins/firebase'
 
 export default {
   name : 'Log-in',
@@ -47,28 +47,26 @@ export default {
       
     }
   },
+  created() {
+
+  },
   methods : {
     //구글 OAUTH 로그인 한다. 
-    clickToLogin() {
+    async clickToLogin() {
+      signInWithRedirect(auth, provider)
       const provider = new GoogleAuthProvider();
-      const auth = getAuth();
+      const auth = getAuth(firebase);
       auth.languageCode = 'korean';
-      signInWithPopup(auth, provider)
-        .then(result => {
-          let resultUserInfo = result.user;
-          this.$store.commit('setUserInfo', resultUserInfo)
-          this.moveToHome()
+      await signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user
+          this.$store.commit('onLogin', true)
+          this.$store.commit('setUserInfo', user)
         })
         .catch((err) => {
           console.log(err)
         })
     },
-    moveToHome() {
-      router.push({
-        path: '/home',
-      })
-    }
-
   }
 
 }

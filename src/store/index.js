@@ -16,6 +16,7 @@ export const store = new Vuex.Store({
     managerList: null,
     matchesData : [],
     searchedPages : {},
+    login : false,
     userInfo : undefined,
     isGetDataLoading : false,
   },
@@ -33,6 +34,9 @@ export const store = new Vuex.Store({
     },
     delUserInfo(state, data) {
       state.userInfo = data;
+    },
+    onLogin(state, boolean) {
+      state.login = boolean
     },
     onloading(state, boolean) {
       state.loading = boolean;

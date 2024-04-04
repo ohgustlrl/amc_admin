@@ -30,14 +30,8 @@
             v-bind="attrs"
             v-on="on"
           >
-            <v-icon 
-              v-if="$store.state.userInfo === undefined"
-            >
-              mdi-account
-            </v-icon>
             <v-img
-              v-else
-              :src="$store.state.userInfo.photoURL" 
+              :src="userInfo?.photoURL" 
               absolute
               style="border-radius : 50%"
             >
@@ -51,7 +45,7 @@
                 반가워요:)
               </v-list-item-title>
               <v-list-item-subtitle>
-                {{ userInfo.displayName }}님
+                {{ userInfo?.displayName }}님
               </v-list-item-subtitle>
             </v-list-item-content> 
           </v-list-item>  
@@ -112,7 +106,7 @@ import Leftdrawer from './Leftdrawer.vue'
     computed: {
     },
     created() {
-
+      this.getUserInfoState()
     },
     methods: {
       getUserInfoState() {

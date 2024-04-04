@@ -6,16 +6,10 @@ import Record from '../views/Record.vue'
 import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
 import MemberManager from '../views/member/MemberManager'
-import Login from '../views/Login.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'login',
-    component: Login
-  },
   {
     path: '/home',
     name: 'home',
