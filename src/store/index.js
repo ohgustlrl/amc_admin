@@ -15,7 +15,7 @@ export const store = new Vuex.Store({
     memberList: [],
     managerList: null,
     matchesData : [],
-    searchedPages : [],
+    searchedPages : {},
     userInfo : undefined,
   },
   getters: {
@@ -43,7 +43,7 @@ export const store = new Vuex.Store({
       state.matchesData.push(matchInfor);
     },
     onSearchedPage(state, data) {
-      state.searchedPages.push(data)
+      state.searchedPages = { ...state.searchedPages, ...data };
     },
     onManagerList(state, data) {
       state.managerList = data

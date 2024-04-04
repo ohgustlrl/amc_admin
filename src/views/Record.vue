@@ -236,7 +236,8 @@ export default {
     async getLoopMatchesData() {
       this.playerData = []
       let stateSearched = this.$store.state.searchedPages
-      if(stateSearched[this.page]) {
+      let page = this.page
+      if(stateSearched[page]) {
         let gameData = await this.filteredData()
         let teamMateArr = await this.filteredTeamMate()
         let steamIdNames = await this.findFilterName(teamMateArr)
@@ -259,9 +260,11 @@ export default {
           await Promise.all(promises)
           const response = await getMatchesData(allMatchData)
   
-          
+          let searchedPageCommitData = {}
+          searchedPageCommitData[page] = true
+        
           this.$store.commit('onMatchesData', response)
-          this.$store.commit('onSearchedPage', stateSearched[this.page] = true)
+          this.$store.commit('onSearchedPage', searchedPageCommitData)
 
           this.searchLoading = !this.searchLoading
           let gameData = await this.filteredData()
@@ -302,8 +305,6 @@ export default {
           }
         }
       }
-
-      console.log("매치데이터 기본정보", dataArray)
       return dataArray
     },
 
@@ -320,6 +321,7 @@ export default {
       let matchIndexId = []
       let rosterInUserIndex = []
       let allTeamPlayerPartiId = {}
+      let teamHeadCount = []
       // 게임데이터가 있는 유저들을 모두 순회하기 위한 for in
       for(let user in dataSet) {
 
@@ -328,10 +330,10 @@ export default {
         participantId[user] = participantId[user] || []
         matchIndexId = []
         rostersArray[user] = rostersArray[user] || []
+        teamHeadCount[user] = teamHeadCount[user] || []
 
         // 유저가 플레이한 횟수만큼 씩 반복시킴
         for(let i = 0; i < dataSet[user].length; i++) {
-
           // 해당 반복문에서 유저의 included의 모든 데이터,
           // included 내 type의 따라 participant, roster의 목록을 분리하여
           // 변수에 담아둠
@@ -363,22 +365,32 @@ export default {
           for(let j = 0; j < rosters.length; j++) {
             let rostersInData = rosters.map(el => el.relationships.participants.data)
             let findItem = rostersInData[j].find(el => el.id === participantId[user][i])
-
             if(findItem) {
               rosterInUserIndex.push(j)
               allTeamPlayerPartiId[user].push(rosters[j].relationships.participants.data)
+              teamHeadCount[user].push(rosters[j].relationships.participants.data.length)
             }
           }
         }
       }
-      return allTeamPlayerPartiId
+      return {allTeamPlayerPartiId, teamHeadCount}
     },
-
+    
+    /**
+     * 
+     * @param {*} userObj 
+     * userObj는 filterTeamMate함수에서 반환된 유저의 모든 파티원 목록과
+     * 플레이한 팀의 인원수를 가지고 있음
+     * 해당 함수는 전달 받은 파라미터를 기준으로 유저의 팀원이였던 플레이어의
+     * 스팀ID를 찾아서 변수에 담고, 파라미터에서 들어온 유저 팀원의 카운트를 변수에
+     * 담아서 다시 반환한다.
+     */
     async findFilterName(userObj) {
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       let participantList = []
       let partiMemberNames = []
+      let teamHeadCount = []
       for(let user in dataSet) {
         participantList[user] = participantList[user] || []
         partiMemberNames[user] = partiMemberNames[user] || []
@@ -395,8 +407,8 @@ export default {
           )
           participantList[user].push(parti)
         }
-        let userData = userObj[user]
-
+        let userData = userObj.allTeamPlayerPartiId[user]
+        teamHeadCount = userObj.teamHeadCount 
         let id = {}
         userData.forEach((element) => {
           element.forEach(obj => {
@@ -412,22 +424,40 @@ export default {
           })
         });
       }
-      return partiMemberNames
+      return {partiMemberNames, teamHeadCount}
     },
 
-    async mergeData(obj1, obj2) {
-      console.log("obj1", obj1)
-      console.log("obj2", obj2)
-      
-      for(const key in obj2) {
-        obj1[key].team = obj2[key]
+    /**
+     * 
+     * @param {*} obj1 
+     * @param {*} obj2
+     * 
+     * 해당 함수는 처음 필터랭했던 매치정보를 담은 객체와
+     * 팀원정보가 들어있는 객체를 파라미터로 받고,
+     * 두개의 데이터를 하나로 합쳐 반환한다.
+     */
+    async mergeData(obj1, obj2) {      
+      for(const key in obj2.partiMemberNames) {
+        obj1[key].team = obj2.partiMemberNames[key]
+      }
+      for(const key in obj2.teamHeadCount) {
+        obj1[key].teamCount = obj2.teamHeadCount[key]
       }
 
       let parserObj = JSON.parse(JSON.stringify(obj1))
       return parserObj
     },
 
+    /**
+     * 
+     * @param {*} data
+     * mergeData 에서 반환된 객체를 파라미터로 받아서
+     * 화면에서 사용자에게 보여줄 데이터로 포매팅한다.
+     * vuetify2버전의 dataTable Ui에서 item에 사용될 수 있는
+     * 형태로 포매팅시켜서 반환하는 함수 
+     */
     async setFormattedData(data) {
+      console.log("파싱데이터", data)
       const formattedData = []
 
       const objToArray = Object.entries(data)
@@ -442,13 +472,11 @@ export default {
           const map = el[1].map[index]
           const mode = el[1].mode[index]
           let team = null
-          if (mode === 'solo') {
-            team = el[1].team.slice(index, index + 1).join(", ")
-          } else if (mode === 'duo') {
-              team = el[1].team.slice(index, index + 2).join(", ")
-          } else if (mode === 'squad') {
-              team = el[1].team.slice(index, index + 4).join(", ")
-          }
+          let startIndex = index == 0 ? 0 : startIndex + el[1].teamCount[index]  
+          let endIndex = index == 0 ? el[1].teamCount[index] : endIndex + el[1].teamCount[index]
+          
+          team = el[1].team.slice(startIndex, endIndex).join(", ")
+
           formattedData[arrayName].push({
             date : dayjs(date).format("YYYY-MM-DD") || '',
             map : this.mapNameToKorean(map),
@@ -457,7 +485,6 @@ export default {
           })
         }
       })
-      console.log("포매팅 데이터", formattedData)
       return formattedData
     },
 
