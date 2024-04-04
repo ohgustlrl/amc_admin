@@ -31,14 +31,14 @@
             v-on="on"
           >
             <v-img
-              :src="userInfo?.photoURL" 
+              :src=userInfo.photoURL
               absolute
               style="border-radius : 50%"
             >
             </v-img>
           </v-btn>
         </template>
-        <v-list>
+        <v-list v-if="userInfo">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>
@@ -80,73 +80,47 @@
 
 <script>
 import firebase from '@/plugins/firebase'
-import 
-{
-  browserSessionPersistence,
-  getAuth,
-  GoogleAuthProvider, 
-  setPersistence, 
-  signInWithPopup,
-  signOut, 
-} from 'firebase/auth'
+import { getAuth, signOut } from 'firebase/auth'
 import Leftdrawer from './Leftdrawer.vue'
 
-  export default {
-    name: 'AppBar',
+export default {
+  name: 'AppBar',
 
-    data() {
-      return {
-        drawer : false,
-        userInfo : null,
-      }
+  data() {
+    return {
+      drawer : false,
+      userInfo : null,
+    }
+  },
+  components: {
+    Leftdrawer
+  },
+  computed: {
+  },
+  created() {
+    this.getUserInfoState()
+  },
+  methods: {
+    getUserInfoState() {
+      this.userInfo = this.$store.state.userInfo
     },
-    components: {
-      Leftdrawer
+    //구글 OAUTH 로그아웃 한다. 
+    async clickToLogout() {
+      const auth = getAuth(firebase);
+      signOut(auth).then(() => {
+        this.$store.commit('onLogin', false)
+        this.$store.commit('delUserInfo', undefined)
+        this.$router.push('/')
+      }).catch((err) => {
+        console.error(err)
+      })
     },
-    computed: {
-    },
-    created() {
-      this.getUserInfoState()
-    },
-    methods: {
-      getUserInfoState() {
-        this.userInfo = this.$store.state.userInfo
-      },
-      //구글 OAUTH 로그인 한다. 
-      clickToLogin() {
-        firebase;
-        const provider = new GoogleAuthProvider();
-        const auth = getAuth();
-        auth.languageCode = 'korean';
-        signInWithPopup(auth, provider)
-          .then(result => {
-            let resultUserInfo = result.user;
-            this.$store.commit('setUserInfo', resultUserInfo)
-            setPersistence(auth, browserSessionPersistence)
-              .then(() => {})
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      },
 
-      //구글 OAUTH 로그아웃 한다. 
-      clickToLogout() {
-        firebase;
-        const auth = getAuth();
-        signOut(auth).then(() => {
-          this.$store.commit('delUserInfo', undefined)
-          console.log('정상적으로 로그아웃 되었습니다.')
-        }).catch(() => {
-        }).finally(() => {
-        })
-      },
-
-      handleDrawerChnage(newValue) {
-        this.drawer = newValue
-      }
+    handleDrawerChnage(newValue) {
+      this.drawer = newValue
     }
   }
+}
 </script>
 
 <style scoped>
