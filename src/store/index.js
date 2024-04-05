@@ -71,7 +71,9 @@ export const store = new Vuex.Store({
       Object.assign(state, initialState)
     }
   },
-  actions: {},
+  actions: {
+
+  },
   modules: {},
   plugins: 
   [
@@ -79,12 +81,13 @@ export const store = new Vuex.Store({
     key: 'vuex',
     storage: window.sessionStorage,
     reducer : (state) => ({
-      drawer : state.drawer,
-      loading : state.loading,
-      memberList : state.memberList
-    })
-  }),
-  createLogger()
-],
+        memberList: state.memberList,
+        managerList: state.managerList,
+        login : state.login,
+        userInfo : state.userInfo,
+      })
+    }),
+    createLogger()
+  ],
   strict: process.env.NODE_ENV !== 'production'
 })
