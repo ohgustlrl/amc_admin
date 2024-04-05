@@ -1,29 +1,16 @@
 <template>
   <v-app id="app">
-    <Login v-if="!login"/>
-    <v-container v-else>
-      <AppBar/>
-        <router-view />
-      <Footer/>
-    </v-container>
+    <router-view />
   </v-app>
 </template>
 
 <script>
-import AppBar from './components/Appbar.vue'
-import Footer from './components/Footer.vue'
-import Login from './views/Login.vue'
-import { mapState } from 'vuex'
-
 export default {
   name: 'AMC_ADMIN',
   components: {
-    AppBar,
-    Footer,
-    Login,
+
   },
   computed: {
-    ...mapState(['login'])
   },
   methods: {
    

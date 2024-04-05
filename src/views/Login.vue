@@ -60,11 +60,13 @@ export default {
       await signInWithPopup(auth, provider)
         .then((result) => {
           const user = result.user
-          this.$store.commit('onLogin', true)
           this.$store.commit('setUserInfo', user)
         })
         .catch((err) => {
           console.log(err)
+        })
+        .finally(() => {
+          this.$router.push({path: '/home'})
         })
     },
   }

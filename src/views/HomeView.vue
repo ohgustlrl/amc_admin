@@ -1,19 +1,26 @@
 <template>
-  <div class="home" />
+  <v-container>
+    <AppBar />
+      <router-view />
+    <Footer />
+  </v-container>
 </template>
 
 <script>
 import firebase from '@/plugins/firebase'
 import { getFirestore, collection, getDocs, where, query } from 'firebase/firestore/lite'
+import AppBar from '../components/Appbar.vue'
+import Footer from '../components/Footer.vue' 
 // @ is an alias to /src
 export default {
-  name: 'HomeView',
+  name: 'MainPage',
   components: {
-
+    AppBar,
+    Footer,
   },
   created() {
-    this.getInitMembers();
-    this.getManagerList();
+    // this.getInitMembers();
+    // this.getManagerList();
   },
   methods: {
     async getInitMembers() {

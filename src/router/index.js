@@ -6,39 +6,47 @@ import Record from '../views/Record.vue'
 import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
 import MemberManager from '../views/member/MemberManager'
+import Login from '../views/Login.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/',
+    name: 'login',
+    component: Login,
+  },
+  {
     path: '/home',
     name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/memberlist',
-    name: 'memberlist',
-    component: Memberlist
-  },
-  {
-    path: '/adminllist',
-    name: 'adminlist',
-    component: MemberManager
-  },
-  {
-    path: '/record',
-    name: 'record',
-    component: Record
-  },
-  {
-    path: '/scheduler',
-    name: 'scheduler',
-    component: Scheduler
-  },
-  {
-    path: '/notice',
-    name: 'notice',
-    component: Meetinglog
+    component: HomeView,
+    children: [
+      {
+        path: '/memberlist',
+        name: 'memberlist',
+        component: Memberlist
+      },
+      {
+        path: '/adminllist',
+        name: 'adminlist',
+        component: MemberManager
+      },
+      {
+        path: '/record',
+        name: 'record',
+        component: Record
+      },
+      {
+        path: '/scheduler',
+        name: 'scheduler',
+        component: Scheduler
+      },
+      {
+        path: '/notice',
+        name: 'notice',
+        component: Meetinglog
+      },
+    ]
   },
 ]
 
