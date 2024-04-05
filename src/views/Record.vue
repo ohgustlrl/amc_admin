@@ -477,11 +477,9 @@ export default {
      * 형태로 포매팅시켜서 반환하는 함수 
      */
     async setFormattedData(data) {
-      console.log("파싱데이터", data)
       const formattedData = []
 
       const objToArray = Object.entries(data)
-      console.log(objToArray)
 
       objToArray.forEach(el => {
         let arrayName = el[0]
