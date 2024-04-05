@@ -20,6 +20,7 @@ const routes = [
     path: '/home',
     name: 'home',
     component: HomeView,
+    props: true,
     children: [
       {
         path: '/memberlist',

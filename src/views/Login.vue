@@ -36,7 +36,7 @@ import
   getAuth,
   GoogleAuthProvider, 
   signInWithPopup,
-  signInWithRedirect 
+  onAuthStateChanged,
 } from 'firebase/auth'
 import firebase from '../plugins/firebase'
 
@@ -48,25 +48,47 @@ export default {
     }
   },
   created() {
-
+    this.authStateChange()
+  },
+  unmounted() {
+    this.authStateChange()
   },
   methods : {
+    authStateChange() {
+      const auth = getAuth(firebase)
+      onAuthStateChanged(auth, (user) => {
+        if(!user) {
+          return
+        } else if(user && this.$route.path === '/') {
+          this.$store.commit("setUserInfo", user)
+          this.$router.push('/home')
+        }
+      })
+    },
     //구글 OAUTH 로그인 한다. 
     async clickToLogin() {
-      signInWithRedirect(auth, provider)
+      let user
       const provider = new GoogleAuthProvider();
       const auth = getAuth(firebase);
       auth.languageCode = 'korean';
       await signInWithPopup(auth, provider)
         .then((result) => {
-          const user = result.user
+          user = result.user
           this.$store.commit('setUserInfo', user)
         })
         .catch((err) => {
           console.log(err)
         })
         .finally(() => {
-          this.$router.push({path: '/home'})
+          console.log("리절트값을 넘길수 있는가 봅시다", user)
+          this.$router.push(
+            {
+              name: 'home',
+              params: {
+                user
+              } 
+            }
+          )
         })
     },
   }

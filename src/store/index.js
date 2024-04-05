@@ -55,6 +55,20 @@ export const store = new Vuex.Store({
     },
     onIsGetDataLoading(state, boolean) {
       state.isGetDataLoading = boolean
+    },
+    resetState(state) {
+      const initialState ={
+        drawer: false,
+        loading: false,
+        memberList: [],
+        managerList: null,
+        matchesData : [],
+        searchedPages : {},
+        login : false,
+        userInfo : undefined,
+        isGetDataLoading : false,
+      };
+      Object.assign(state, initialState)
     }
   },
   actions: {},

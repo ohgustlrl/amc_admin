@@ -5,6 +5,7 @@
       color="#fff"
       fixed
       height="78"
+      width="100%"
     >
       <v-app-bar-nav-icon @click="drawer = !drawer"/>
       <v-avatar
@@ -16,65 +17,33 @@
         >
       </v-avatar>
       <v-spacer />
-      <!-- 앱바 로그인 메뉴 시작-->
-      <v-menu 
-        bottom
-        origin="center center"
-        transition="scale-transition"
-        max-width="60vw"
-        style="right: 12px !important;"
+      <v-btn
+        icon
+        large
+        @click="onDialog = !onDialog"
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn 
-            icon 
-            v-bind="attrs"
-            v-on="on"
+        <v-avatar
+          size="48"
+        >
+          <img
+            alt="Avatar"
+            :src=userInfo?.photoURL
           >
-            <v-img
-              :src=userInfo.photoURL
-              absolute
-              style="border-radius : 50%"
-            >
-            </v-img>
-          </v-btn>
-        </template>
-        <v-list v-if="userInfo">
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>
-                반가워요:)
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ userInfo?.displayName }}님
-              </v-list-item-subtitle>
-            </v-list-item-content> 
-          </v-list-item>  
-          <v-divider />
-          <v-list nav>
-            <v-btn
-              small
-              elevation="2"
-              rounded
-              color="error"
-              dark
-              @click="clickToLogout"
-            >
-              <v-icon
-                left
-                dark
-              >
-                mdi-logout-variant
-              </v-icon>
-              로그아웃
-            </v-btn>
-          </v-list>
-        </v-list>
-      </v-menu>
+        </v-avatar>
+      </v-btn>
     </v-app-bar>
     <Leftdrawer
       :drawerProp = drawer
       @drawer="handleDrawerChnage"
     />
+    <v-dialog 
+      width="200"
+      v-model="onDialog"
+    >
+      <v-btn @click="clickToLogout">
+        로그아웃
+      </v-btn>
+    </v-dialog>
   </div>
 </template>
 
@@ -90,6 +59,7 @@ export default {
     return {
       drawer : false,
       userInfo : null,
+      onDialog : false,
     }
   },
   components: {
@@ -98,21 +68,21 @@ export default {
   computed: {
   },
   created() {
-    this.getUserInfoState()
+ 
+  },
+  unmounted() {
+
   },
   methods: {
-    getUserInfoState() {
-      this.userInfo = this.$store.state.userInfo
-    },
     //구글 OAUTH 로그아웃 한다. 
     async clickToLogout() {
       const auth = getAuth(firebase);
       signOut(auth).then(() => {
-        this.$store.commit('onLogin', false)
-        this.$store.commit('delUserInfo', undefined)
-        this.$router.push('/')
+        this.$store.commit('resetState')
       }).catch((err) => {
         console.error(err)
+      }).finally(() => {
+        this.$router.push('/')
       })
     },
 
