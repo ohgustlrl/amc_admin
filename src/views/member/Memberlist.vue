@@ -117,6 +117,7 @@ export default {
       search: '',
       dcMemberList : null,
       memberList : null,
+      mercenaryList : null,
       headers: [
         { text: '닉네임', align: 'start', value: 'name' },
         { text: '성별', align: 'start', value: 'sex' },
@@ -262,7 +263,70 @@ export default {
 
     async getDiscordMemberList() {
       this.dcMemberList = await getDiscordMemberListAPI();
-      console.log("디코 멤버 리스트", this.dcMemberList)
+
+      let firstData = await this.firstFomatting()
+      console.log("반환데이터", firstData)
+      let {member, mercenary} = await this.secondFomtting(firstData)
+      console.log("정회원 리스트", member )
+      console.log("용병 리스트", mercenary )
+    },
+
+    async firstFomatting() {
+      let formatting = {}
+      let list = this.dcMemberList
+
+      list.forEach(user => {
+        if(user.nickname !== null ) {
+          let userNickName = user.nickname
+          let splittedName = userNickName.split('/')
+          let name = splittedName[0]  
+          let sex = splittedName[1]
+          let age = splittedName[2]
+          let steamid = splittedName[3]
+          let discordid = user.userId
+          
+          
+          formatting[user.userId] = {
+            age : age,
+            discordid : discordid,
+            name : name,
+            sex : sex,
+            steamid : steamid
+          }
+        }
+      });
+      return formatting
+    },
+    async secondFomtting(formatting) {
+      let list = formatting
+      let bot = []
+      let member = []
+      let mercenary = []
+
+      for(const key in list) {
+        if(list[key].age === undefined ) {
+          bot.push( {name : list[key].name })
+        } else if (
+            list[key].steamid !== undefined && list[key].steamid.includes('지인') 
+            || 
+            list[key].steamid == undefined && list[key].sex.includes('지인')
+          ) {
+          mercenary[list[key].discordid] = {
+            age : list[key].age == !Number(list[key].age) ? '알수없음' : list[key].age,
+            discordid : list[key].discordid,
+            name : list[key].name
+          }
+        } else {
+          member[list[key].discordid] = {
+            age : list[key].age,
+            discordid : list[key].discordid,
+            name : list[key].name,
+            sex : list[key].sex,
+            steamid : list[key].steamid
+          }
+        }   
+      }
+      return {member, mercenary}
     },
   },
 };
