@@ -13,7 +13,6 @@ import AppBar from '../components/Appbar.vue'
 import Footer from '../components/Footer.vue' 
 // @ is an alias to /src
 export default {
-  props: ['user'],
   name: 'MainPage',
   components: {
     AppBar,
@@ -22,13 +21,8 @@ export default {
   created() {
     this.getInitMembers();
     this.getManagerList();
-    this.getParamData();
   },
   methods: {
-    getParamData() {
-      const params = this.$props.user
-      console.log(params)
-    },
     async getInitMembers() {
       try {
         const db = getFirestore(firebase)

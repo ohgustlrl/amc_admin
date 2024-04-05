@@ -36,7 +36,6 @@ import
   getAuth,
   GoogleAuthProvider, 
   signInWithPopup,
-  onAuthStateChanged,
 } from 'firebase/auth'
 import firebase from '../plugins/firebase'
 
@@ -48,47 +47,39 @@ export default {
     }
   },
   created() {
-    this.authStateChange()
+    
   },
   unmounted() {
-    this.authStateChange()
+
   },
   methods : {
-    authStateChange() {
-      const auth = getAuth(firebase)
-      onAuthStateChanged(auth, (user) => {
-        if(!user) {
-          return
-        } else if(user && this.$route.path === '/') {
-          this.$store.commit("setUserInfo", user)
-          this.$router.push('/home')
-        }
-      })
-    },
     //구글 OAUTH 로그인 한다. 
-    async clickToLogin() {
-      let user
+    clickToLogin() {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(firebase);
       auth.languageCode = 'korean';
-      await signInWithPopup(auth, provider)
+
+      const saveUserInfo = (result) => {
+        return new Promise((resolve) => {
+          let userData = result.user.providerData[0]
+
+          this.$store.commit('setUserInfo', userData)
+          resolve()
+        })
+      }
+
+
+      signInWithPopup(auth, provider)
         .then((result) => {
-          user = result.user
-          this.$store.commit('setUserInfo', user)
+          // console.log("인증 결과", result)
+          // saveUserInfo
+          saveUserInfo(result)
+        })
+        .then(() => {
+          this.$router.push('/home')
         })
         .catch((err) => {
           console.log(err)
-        })
-        .finally(() => {
-          console.log("리절트값을 넘길수 있는가 봅시다", user)
-          this.$router.push(
-            {
-              name: 'home',
-              params: {
-                user
-              } 
-            }
-          )
         })
     },
   }

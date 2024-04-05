@@ -17,33 +17,52 @@
         >
       </v-avatar>
       <v-spacer />
-      <v-btn
-        icon
-        large
-        @click="onDialog = !onDialog"
+      <v-menu
+        open-on-hover
+        left
+        max-width="150px"
       >
-        <v-avatar
-          size="48"
-        >
-          <img
-            alt="Avatar"
-            :src=userInfo?.photoURL
+        <template v-slot:activator="{on}">
+          <v-btn
+            class="mr-2"
+            icon
+            large
+            v-on="on"
           >
-        </v-avatar>
-      </v-btn>
+            <v-avatar
+              size="48"
+            >
+              <img
+                alt="Avatar"
+                :src=userInfo?.photoURL
+              >
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list-item-content class="justify-center">
+            <h3>{{ userInfo?.displayName + '님' }}</h3>
+            <p class="text-caption mt-1">{{ userInfo?.email }}</p>
+            <v-divider class="my-3" />
+            <v-btn
+              class="ma-2"
+              outlined
+              color="indigo"
+              @click="clickToLogout"
+            >
+              <v-icon>
+                mdi-logout
+              </v-icon>
+              로그아웃
+            </v-btn>
+          </v-list-item-content>
+        </v-card>
+      </v-menu>
     </v-app-bar>
     <Leftdrawer
       :drawerProp = drawer
       @drawer="handleDrawerChnage"
     />
-    <v-dialog 
-      width="200"
-      v-model="onDialog"
-    >
-      <v-btn @click="clickToLogout">
-        로그아웃
-      </v-btn>
-    </v-dialog>
   </div>
 </template>
 
@@ -68,12 +87,15 @@ export default {
   computed: {
   },
   created() {
- 
+    this.getStateUserInfo()
   },
   unmounted() {
 
   },
   methods: {
+    getStateUserInfo() {
+      this.userInfo = this.$store.state.userInfo
+    },
     //구글 OAUTH 로그아웃 한다. 
     async clickToLogout() {
       const auth = getAuth(firebase);

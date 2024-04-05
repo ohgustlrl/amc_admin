@@ -18,7 +18,7 @@ const routes = [
   },
   {
     path: '/home',
-    name: 'home',
+    name: 'MainPage',
     component: HomeView,
     props: true,
     children: [
