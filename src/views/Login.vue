@@ -86,12 +86,11 @@ export default {
   },
   methods : {
     //구글 OAUTH 로그인 한다. 
-    clickToLogin() {
+    async clickToLogin() {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(firebase);
       auth.languageCode = 'korean';
-      let response
-
+      let googleUID
       const saveUserInfo = (result) => {
         return new Promise((resolve) => {
           let userData = result.user.providerData[0]
@@ -101,23 +100,20 @@ export default {
         })
       }
 
-      signInWithPopup(auth, provider)
+       signInWithPopup(auth, provider)
         .then((result) => {
-          response = getAuthConfirm(result.uid)
-
-          if(response == 200) {
-            // saveUserInfo
-            saveUserInfo(result)
-          } else {
-            return
-          }
+          googleUID = result.user.uid
+          saveUserInfo(result)
         })
         .then(() => {
-          if(response == 200) {
-            this.$router.push('/home')
-          } else {
-            this.msgBox = true
-          }
+          getAuthConfirm(googleUID)
+            .then(res => {
+              if(res == 200) {
+                this.$router.push('/home')
+              } else {
+                this.msgBox = true
+              }
+            })
         })
         .catch((err) => {
           console.log(err)
