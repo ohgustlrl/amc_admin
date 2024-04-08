@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container fluid :class="[isDashBoard ? 'my-0 py-0 grey lighten-5' : '']">
     <AppBar />
       <v-main>
         <router-view />
@@ -16,6 +16,11 @@ import Footer from '../components/Footer.vue'
 // @ is an alias to /src
 export default {
   name: 'MainPage',
+  data() {
+    return {
+      
+    }
+  },
   components: {
     AppBar,
     Footer,
@@ -23,6 +28,11 @@ export default {
   created() {
     this.getInitMembers();
     this.getManagerList();
+  },
+  computed: {
+    isDashBoard() {
+      return this.$route.name == 'DashBoard' ? true : false
+    }
   },
   methods: {
     async getInitMembers() {
@@ -52,3 +62,7 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+
+</style>
