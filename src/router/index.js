@@ -19,7 +19,6 @@ const routes = [
   },
   {
     path: '/home',
-    name: 'MainPage',
     component: HomeView,
     props: true,
     children: [

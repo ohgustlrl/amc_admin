@@ -8,12 +8,10 @@
 export default {
   name: 'AMC_ADMIN',
   components: {
-
   },
   computed: {
   },
   methods: {
-   
   },
 }
 </script>

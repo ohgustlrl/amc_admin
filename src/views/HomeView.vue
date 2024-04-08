@@ -1,7 +1,9 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <AppBar />
-    <router-view />
+      <v-main>
+        <router-view />
+      </v-main>
     <Footer />
   </v-container>
 </template>
