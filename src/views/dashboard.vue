@@ -11,18 +11,18 @@
             <p class="text-h6 ma-0">클랜원 현황</p>
             <span class="text-subtitle-2 text--secondary">업데이트 일자 2024.08</span>
           </v-card-title>
-          <v-card-text class="d-flex pa-3 justify-space-between">
+          <v-card-text height="20px" class="d-flex pa-3 justify-space-between">
             <p class="d-flex align-center ma-0">
               <v-icon color="black">mdi-account-group</v-icon>
-              <span class="text-body-1 text-right ml-2 font-weight-bold">89 명</span>
+              <span class="text-body-1 text-right ml-2 font-weight-bold">{{ total }} 명</span>
             </p>
             <p class="d-flex align-center ma-0">
               <v-icon color="primary">mdi-human-male</v-icon>
-              <span class="text-body-1 text-right font-weight-bold">89 명</span>
+              <span class="text-body-1 text-right font-weight-bold">{{ maleOfTotal }} 명</span>
             </p>
             <p class="d-flex align-center ma-0">
               <v-icon color="pink">mdi-human-female</v-icon>
-              <span class="text-body-1 text-right font-weight-bold">89 명</span>
+              <span class="text-body-1 text-right font-weight-bold">{{ feMaleOfTotal }} 명</span>
             </p>
           </v-card-text>
         </v-card>
@@ -37,14 +37,19 @@
             <p class="text-h6 ma-0">신규 클랜원</p>
             <span class="text-subtitle-2 text--secondary">업데이트 일자 2024.08</span>
           </v-card-title>
-          <v-card-text class="d-flex pa-3 justify-space-between">
-              <p class="my-1">
+          <v-card-text class="d-flex pa-3 justify-space-between" v-if="newMember.length !== 0">
+              <p class="ma-0">
                 <span class="text-body-1 font-weight-bold">신규 가입일 :</span> 
                 <span class="text-body-1 text-right font-weight-bold"> 24.01.23</span>
               </p>
-              <p class="my-1">
+              <p class="ma-0">
                 <span class="text-body-1 font-weight-bold">닉네임 :</span>
                 <span class="text-body-1 text-right font-weight-bold"> 갓파더</span>
+              </p>
+          </v-card-text>
+          <v-card-text class="d-flex pa-3 justify-space-between" v-else>
+              <p class="ma-0">
+                <span class="text-body-1 font-weight-bold">서비스 오픈 준비중입니다.</span> 
               </p>
           </v-card-text>
         </v-card>
@@ -58,11 +63,41 @@ export default {
   name : 'dashBoard',
   data() {
     return {
-
+      memberList : [],
+      newMember : []
     }
   },
+  computed : {
+    total() {
+      let totlaLength = this.memberList.length
+      return totlaLength
+    },
+    maleOfTotal() {
+      let maleArray = []
+      this.memberList.map(obj => {
+        if(obj.sex == '남') {
+          maleArray.push(obj.name)
+        }
+      })
+      return maleArray.length
+    },
+    feMaleOfTotal() {
+      let feMaleArray = []
+      this.memberList.map(obj => {
+        if(obj.sex == '여') {
+          feMaleArray.push(obj.name)
+        }
+      })
+      return feMaleArray.length
+    },
+  },
+  created() {
+    this.getMemberList()
+  },
   methods: {
-
+    getMemberList() {
+      this.memberList = this.$store.state.memberList
+    }
   }
 }
 </script>
