@@ -314,11 +314,13 @@ export default {
           let discordid = user.userId
           let joinedTimeStamp = user.joinedTimestamp
           let roles = user.roles
-          // let isAdmin = roles.filter(value => value == '478728282712309764')
-          // let admin
-          // if(isAdmin) {
-          //   admin = true
-          // } else return
+          let isAdmin = roles.filter(value => value == '478933666266087436')
+          let admin
+          if(isAdmin.length > 0) {
+            admin = "TRUE"
+          } else {
+            admin = "FALSE"
+          }
           
           formatting[user.userId] = {
             age : age,
@@ -327,7 +329,7 @@ export default {
             sex : sex,
             steamid : steamid,
             join : dayjs(joinedTimeStamp).format('YY.MM.DD'),
-            roles : roles
+            manager : admin
           }
         }
       });
