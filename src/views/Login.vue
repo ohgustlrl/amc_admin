@@ -39,7 +39,7 @@
           로그인 할 수 없습니다.
         </v-card-title>
         <v-card-text>
-          죄송합니다. 해당 사이트는 인증 된 사용자만 로그인 할 수 있습니다.
+          본 사이트는 인증 된 사용자만 로그인 할 수 있습니다.
           로그인이 필요한 경우 관리자에게 문의해 주세요.
         </v-card-text>
 
@@ -51,6 +51,35 @@
             color="primary"
             text
             @click="msgBox = false"
+          >
+            확인
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      transition="dialog-bottom-transition"
+      max-width="300"
+      persistent
+      v-model="errorBox"
+    >
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          죄송합니다.
+        </v-card-title>
+        <v-card-text>
+          현재는 로그인이 불가능합니다.
+          관리자에게 문의해주세요.
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="errorBox = false"
           >
             확인
           </v-btn>
@@ -76,6 +105,7 @@ export default {
   data() {
     return {
       msgBox : false,
+      errorBox : false,
     }
   },
   created() {
@@ -108,11 +138,14 @@ export default {
         .then(() => {
           getAuthConfirm(googleUID)
             .then(res => {
+              console.log("반환값", res)
               if(res == 200) {
-                this.$router.push('/home')
-              } else {
-                this.msgBox = true
-              }
+                  this.$router.push('/home')
+                } else if(res == 531) {
+                  this.msgBox = true
+                } else {
+                  this.errorBox = true
+                }
             })
         })
         .catch((err) => {

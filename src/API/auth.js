@@ -6,7 +6,8 @@ export const getAuthConfirm = async (userUID) => {
   console.log(userUID)
   try {
     const result = await axios.post(`${baseUrl}login`, {userUID : userUID})
-    return result.code
+    console.log("auth.js에서 반환하는 값은?", result)
+    return result.data.code
   } catch (error) {
     console.error(error)
   } 
