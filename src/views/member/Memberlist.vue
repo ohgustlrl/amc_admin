@@ -1,5 +1,25 @@
 <template>
   <div>
+    <v-overlay :class="isHide === false ? 'd-none' : ''">
+      <template v-if="!searchLoading">
+        <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+        >
+        </v-progress-circular>
+        <span>데이터를 가져오고 있습니다.</span>
+      </template>
+      <template v-else>
+        <span>매치 데이터를 조회 후 다운로드 중 입니다.</span>
+        <v-progress-linear
+          v-model="progressPercentage"
+          height="25"
+        >
+          <strong>{{ progressPercentage }}%</strong>
+        </v-progress-linear>
+      </template>
+    </v-overlay>
     <v-banner
       outlined
       rounded
@@ -103,13 +123,16 @@ import Vuex from 'vuex'
 import firebase from '@/plugins/firebase'
 import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
 import {getDiscordMemberListAPI} from '../../API/discord'
+import dayjs from 'dayjs'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
 
 export default {
   name: "Member-list",
-
+  component() {
+    dayjs
+  },
   data() {
     return {
       dialog: false,
@@ -132,6 +155,8 @@ export default {
       pageCount: 0,
       itemsPerPage: 10,
       rowPerList: '10',
+      searchLoading : false,
+      isHide : false,
       editedIndex: -1,
       editedItem: {
         name:'',
@@ -262,36 +287,47 @@ export default {
     },
 
     async getDiscordMemberList() {
+      this.showLoading()
       this.dcMemberList = await getDiscordMemberListAPI();
 
       let firstData = await this.firstFomatting()
-      console.log("반환데이터", firstData)
+      console.log("반환리스트", firstData)
       let {member, mercenary} = await this.secondFomtting(firstData)
       console.log("정회원 리스트", member )
       console.log("용병 리스트", mercenary )
+      this.hideLoading()
     },
 
     async firstFomatting() {
       let formatting = {}
       let list = this.dcMemberList
-
+      console.log("찐목록",list)
+      
       list.forEach(user => {
         if(user.nickname !== null ) {
-          let userNickName = user.nickname
+          let userNickName = user.displayName
           let splittedName = userNickName.split('/')
           let name = splittedName[0]  
           let sex = splittedName[1]
           let age = splittedName[2]
           let steamid = splittedName[3]
           let discordid = user.userId
-          
+          let joinedTimeStamp = user.joinedTimestamp
+          let roles = user.roles
+          // let isAdmin = roles.filter(value => value == '478728282712309764')
+          // let admin
+          // if(isAdmin) {
+          //   admin = true
+          // } else return
           
           formatting[user.userId] = {
             age : age,
             discordid : discordid,
             name : name,
             sex : sex,
-            steamid : steamid
+            steamid : steamid,
+            join : dayjs(joinedTimeStamp).format('YY.MM.DD'),
+            roles : roles
           }
         }
       });
@@ -327,6 +363,12 @@ export default {
         }   
       }
       return {member, mercenary}
+    },
+    showLoading() {
+      this.isHide = true
+    },
+    hideLoading() {
+      this.isHide = false
     },
   },
 };
