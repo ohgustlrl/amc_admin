@@ -7,6 +7,7 @@ import Scheduler from '../views/Scheduler.vue'
 import Meetinglog from '../views/Meetinglog.vue'
 import MemberManager from '../views/member/MemberManager'
 import Login from '../views/Login.vue'
+import DashBoard from '../views/dashboard.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +23,11 @@ const routes = [
     component: HomeView,
     props: true,
     children: [
+      {
+        path: '',
+        name : 'DashBoard',
+        component : DashBoard
+      },
       {
         path: '/memberlist',
         name: 'memberlist',
