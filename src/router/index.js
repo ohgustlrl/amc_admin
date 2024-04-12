@@ -28,23 +28,33 @@ const routes = [
         name : 'DashBoard',
         component : DashBoard,
         porps: {
-          memberListProps : []
+          memberListProps : [],
+          mercenaryListProps : []
         }
       },
       {
         path: '/memberlist',
         name: 'memberlist',
-        component: Memberlist
+        component: Memberlist,
+        props: {
+          memberListProps : [],
+        }
       },
       {
         path: '/adminllist',
         name: 'adminlist',
-        component: MemberManager
+        component: MemberManager,
+        props: {
+          managerListProps : [],
+        }
       },
       {
         path: '/record',
         name: 'record',
-        component: Record
+        component: Record,
+        props: {
+          memberListProps : [],
+        }
       },
       {
         path: '/scheduler',

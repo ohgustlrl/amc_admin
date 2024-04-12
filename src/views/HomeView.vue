@@ -67,19 +67,20 @@ export default {
     // },
 
     async getDiscordMemberList() {
-      if(this.$store.state.memberList.length !== 0) {
+      if(this.dcMemberList !== null) {
         this.memberList = this.$store.state.memberList
+        this.mercenaryList = this.$store.state.mercenaryList
+        this.dcMemberList = this.$store.state.dcMemberList
       } else {
-        this.showLoading()
         this.dcMemberList = await getDiscordMemberListAPI();
         // const currentDate = new Date()
         // const timestamp = currentDate.getTime()
   
         let firstData = await this.firstFomatting()
-        console.log("반환리스트", firstData)
         let {member, mercenary, managerList} = await this.secondFomtting(firstData)
         console.log("정회원", member)
         console.log("용병", mercenary)
+        console.log("용병", managerList)
         this.$store.commit('onMemberList', member)
         this.$store.commit('onMercenaryList', mercenary)
         this.$store.commit('onManagerList', managerList)
@@ -87,7 +88,6 @@ export default {
         this.memberList = this.$store.state.memberList
         this.mercenaryList = this.$store.state.mercenaryList
         this.managerList = this.$store.state.managerList
-        this.hideLoading()
       }
     },
 
@@ -153,7 +153,6 @@ export default {
           ) {
           mercenary.push(
             {
-              age : list[key].age == !Number(list[key].age) ? '알수없음' : list[key].age,
               discordid : list[key].discordid,
               name : list[key].name,
               join : list[key].join
