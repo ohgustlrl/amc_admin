@@ -19,6 +19,7 @@ export const store = new Vuex.Store({
     login : false,
     userInfo : undefined,
     isGetDataLoading : false,
+    mercenaryList : [],
   },
   getters: {
     matchesData : state => {
@@ -56,6 +57,10 @@ export const store = new Vuex.Store({
     onIsGetDataLoading(state, boolean) {
       state.isGetDataLoading = boolean
     },
+    onMercenaryList(state, data) {
+      state.mercenaryList = data
+    },
+    
     resetState(state) {
       const initialState ={
         drawer: false,

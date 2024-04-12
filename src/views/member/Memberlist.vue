@@ -120,9 +120,9 @@
 <script>
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from '@/plugins/firebase'
-import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
-import {getDiscordMemberListAPI} from '../../API/discord'
+// import firebase from '@/plugins/firebase'
+// import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
+// import {getDiscordMemberListAPI} from '../../API/discord'
 import dayjs from 'dayjs'
 
 Vue.use(Vuex)
@@ -157,54 +157,15 @@ export default {
       rowPerList: '10',
       searchLoading : false,
       isHide : false,
-      editedIndex: -1,
-      editedItem: {
-        name:'',
-        sex:'',
-        age:0,
-        steamid:'',
-        manager: 'false',
-        discordid:'',
-      },
-      defaultItem: {
-        name: '',
-        sex: '',
-        age: 0,
-        steamid: '',
-        manager: 'false',
-        discordid:'',
-      },
-      Rules: [
-        value => !!value || '필수항목'
-      ],
-      sexRules: [
-        value => !!value || '필수항목',
-        value => (value === '남') || (value === '여') || '성별이 이상하다?'
-      ],
-      ageRules: [
-        value => !!value || '필수항목',
-        value => value >= 25 || '나이가 적다 생각하지 않음?',
-        value => value <= 65 || '나이가 많다 생각하지 않음?'
-      ],
-      dicoRules: [
-        value => !!value || '나중에 수정 안되니깐 정확히 입력해야 함',
-        value => /^[0-9]*$/.test(value) || '숫자만입력 가능함',
-      ],
+
     };
   },
   computed: {
-    formTitle () {
-        return this.editedIndex === -1 ? '신규 등록' : '수정 등록'
-      },
+
   },
 
   watch: {
-    dialog (val) {
-        val || this.close()
-      },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    },
+
   },
 
   created() {
@@ -218,154 +179,158 @@ export default {
     async getMembers() {
       this.memberList = this.$store.state.memberList
     },
-    
-    editItem (item) {
-      this.editedIndex = this.$store.state.memberList.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
-    },
 
-    deleteItem (item) {
-      this.editedIndex = this.$store.state.memberList.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+    // async getDiscordMemberList() {
+    //   this.showLoading()
+    //   this.dcMemberList = await getDiscordMemberListAPI();
+    //   const currentDate = new Date()
+    //   const timestamp = currentDate.getTime()
+
+    //   let firstData = await this.firstFomatting()
+    //   console.log("반환리스트", firstData)
+    //   let {member, mercenary} = await this.secondFomtting(firstData)
+    //   this.hideLoading()
+
+    // },
+
+    // async firstFomatting() {
+    //   let formatting = {}
+    //   let list = this.dcMemberList
       
-    },
-
-    deleteItemConfirm () {
-      const db = getFirestore(firebase)
-      const deleteId = this.editedItem.discordid
-      const deleteRef = doc(db, 'members', deleteId)
-      try {
-          deleteDoc(deleteRef)
-        } catch (e) {
-          console.log(e)
-        } finally {
-          this.getMembers();
-          this.$store.state.memberList.splice(this.editedIndex, 1)
-          this.closeDelete()
-        }
-    },
-
-    close () {
-      this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
-    },
-
-    closeDelete () {
-      this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
-    },
-
-    async save () {
-      const db = getFirestore(firebase)
-      const docuid = this.editedItem.discordid
-      try {
-        await setDoc(doc(db, "members", docuid), {
-          name: this.editedItem.name,
-          sex: this.editedItem.sex,
-          age: this.editedItem.age,
-          steamid:this.editedItem.steamid,
-          manager: this.editedItem.manager,
-          discordid:this.editedItem.discordid
-        }, {merge: true});
-      } catch {
-        alert('권한이 필요한 작업입니다.')
-      } finally {
-        this.getMembers();
-        this.close();
-      }
-    },
-    getItemControl() {
-      return `item.actions`
-    },
-
-    async getDiscordMemberList() {
-      this.showLoading()
-      this.dcMemberList = await getDiscordMemberListAPI();
-
-      let firstData = await this.firstFomatting()
-      console.log("반환리스트", firstData)
-      let {member, mercenary} = await this.secondFomtting(firstData)
-      console.log("정회원 리스트", member )
-      console.log("용병 리스트", mercenary )
-      this.hideLoading()
-    },
-
-    async firstFomatting() {
-      let formatting = {}
-      let list = this.dcMemberList
-      console.log("찐목록",list)
-      
-      list.forEach(user => {
-        if(user.nickname !== null ) {
-          let userNickName = user.displayName
-          let splittedName = userNickName.split('/')
-          let name = splittedName[0]  
-          let sex = splittedName[1]
-          let age = splittedName[2]
-          let steamid = splittedName[3]
-          let discordid = user.userId
-          let joinedTimeStamp = user.joinedTimestamp
-          let roles = user.roles
-          let isAdmin = roles.filter(value => value == '478933666266087436')
-          let admin
-          if(isAdmin.length > 0) {
-            admin = "TRUE"
-          } else {
-            admin = "FALSE"
-          }
+    //   list.forEach(user => {
+    //     if(user.nickname !== null ) {
+    //       let userNickName = user.displayName
+    //       let splittedName = userNickName.split('/')
+    //       let name = splittedName[0]  
+    //       let sex = splittedName[1]
+    //       let age = splittedName[2]
+    //       let steamid = splittedName[3]
+    //       let discordid = user.userId
+    //       let joinedTimeStamp = user.joinedTimestamp
+    //       let roles = user.roles
+    //       let isAdmin = roles.filter(value => value == '478933666266087436')
+    //       let admin
+    //       if(isAdmin.length > 0) {
+    //         admin = "TRUE"
+    //       } else {
+    //         admin = "FALSE"
+    //       }
           
-          formatting[user.userId] = {
-            age : age,
-            discordid : discordid,
-            name : name,
-            sex : sex,
-            steamid : steamid,
-            join : dayjs(joinedTimeStamp).format('YY.MM.DD'),
-            manager : admin
-          }
-        }
-      });
-      return formatting
-    },
-    async secondFomtting(formatting) {
-      let list = formatting
-      let bot = []
-      let member = []
-      let mercenary = []
+    //       formatting[user.userId] = {
+    //         age : age,
+    //         discordid : discordid,
+    //         name : name,
+    //         sex : sex,
+    //         steamid : steamid,
+    //         join : dayjs(joinedTimeStamp).format('YY.MM.DD'),
+    //         manager : admin
+    //       }
+    //     }
+    //   });
+    //   return formatting
+    // },
+    // async secondFomtting(formatting) {
+    //   let list = formatting
+    //   let bot = []
+    //   let member = []
+    //   let mercenary = []
 
-      for(const key in list) {
-        if(list[key].age === undefined ) {
-          bot.push( {name : list[key].name })
-        } else if (
-            list[key].steamid !== undefined && list[key].steamid.includes('지인') 
-            || 
-            list[key].steamid == undefined && list[key].sex.includes('지인')
-          ) {
-          mercenary[list[key].discordid] = {
-            age : list[key].age == !Number(list[key].age) ? '알수없음' : list[key].age,
-            discordid : list[key].discordid,
-            name : list[key].name
-          }
-        } else {
-          member[list[key].discordid] = {
-            age : list[key].age,
-            discordid : list[key].discordid,
-            name : list[key].name,
-            sex : list[key].sex,
-            steamid : list[key].steamid
-          }
-        }   
-      }
-      return {member, mercenary}
-    },
+    //   for(const key in list) {
+    //     if(list[key].age === undefined ) {
+    //       bot.push( {name : list[key].name })
+    //     } else if (
+    //         list[key].steamid !== undefined && list[key].steamid.includes('지인') 
+    //         || 
+    //         list[key].steamid == undefined && list[key].sex.includes('지인')
+    //       ) {
+    //       mercenary[list[key].discordid] = {
+    //         age : list[key].age == !Number(list[key].age) ? '알수없음' : list[key].age,
+    //         discordid : list[key].discordid,
+    //         name : list[key].name
+    //       }
+    //     } else {
+    //       member[list[key].discordid] = {
+    //         age : list[key].age,
+    //         discordid : list[key].discordid,
+    //         name : list[key].name,
+    //         sex : list[key].sex,
+    //         steamid : list[key].steamid
+    //       }
+    //     }   
+    //   }
+    //   return {member, mercenary}
+    // },
+    // setUpdateMembersDB(member) {
+    //   const db = getFirestore(firebase)
+    //   const collectionName = 'members'
+
+    //   db.collection(collectionName).get()
+    //     .then(querySnapshot => {
+    //       console.log("이게 에러인가?",querySnapshot)
+    //       const deletePromises = [];
+    //       querySnapshot.forEach(doc => {
+    //         deletePromises.push(doc.ref.delete())
+    //       })
+
+    //       return Promise.all(deletePromises)
+    //     })
+    //     .then(() => {
+    //       return db.collection(collectionName).add(member)
+    //     })
+    //     .then(() => {
+    //       alert("멤버데이터가 업데이트 됐습니다.")
+    //     })
+    //     .catch(error => {
+    //       console.error("데이터 처리 중 에러가 발생했습니다.",error)
+    //     })
+    // },
+    // setUpdateMercenaryDB(mercenary) {
+    //   const db = getFirestore(firebase)
+    //   const collectionName = 'mercenary'
+
+    //   db.collection(collectionName).get()
+    //     .then(querySnapshot => {
+    //       const deletePromises = [];
+    //       querySnapshot.forEach(doc => {
+    //         deletePromises.push(doc.ref.delete())
+    //       })
+
+    //       return Promise.all(deletePromises)
+    //     })
+    //     .then(() => {
+    //       return db.collection(collectionName).add(mercenary)
+    //     })
+    //     .then(() => {
+    //       alert("용병데이터가 업데이트 됐습니다.")
+    //     })
+    //     .catch(error => {
+    //       console.error("데이터 처리 중 에러가 발생했습니다.",error)
+    //     })
+    // },
+    // setLastUpdateDB(timestamp) {
+    //   const db = getFirestore(firebase)
+    //   const collectionName = 'timestamp'
+
+    //   db.collection(collectionName).get()
+    //     .then(querySnapshot => {
+    //       const deletePromises = [];
+    //       querySnapshot.forEach(doc => {
+    //         deletePromises.push(doc.ref.delete())
+    //       })
+
+    //       return Promise.all(deletePromises)
+    //     })
+    //     .then(() => {
+    //       return db.collection(collectionName).add(timestamp)
+    //     })
+    //     .then(() => {
+    //       alert("마지막 업데이트 일자가 업데이트 됐습니다..")
+    //     })
+    //     .catch(error => {
+    //       console.error("데이터 처리 중 에러가 발생했습니다.",error)
+    //     })
+    // },
+
     showLoading() {
       this.isHide = true
     },
