@@ -138,7 +138,6 @@ export default {
         .then(() => {
           getAuthConfirm(googleUID)
             .then(res => {
-              console.log("반환값", res)
               if(res == 200) {
                   this.$router.push('/home')
                 } else if(res == 531) {
