@@ -72,6 +72,7 @@ export const store = new Vuex.Store({
         login : false,
         userInfo : undefined,
         isGetDataLoading : false,
+        mercenaryList: [],
       };
       Object.assign(state, initialState)
     }
@@ -88,6 +89,7 @@ export const store = new Vuex.Store({
     reducer : (state) => ({
         memberList: state.memberList,
         managerList: state.managerList,
+        mercenaryList : state.mercenaryList,
         login : state.login,
         userInfo : state.userInfo,
       })
