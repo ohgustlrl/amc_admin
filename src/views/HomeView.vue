@@ -78,9 +78,7 @@ export default {
   
         let firstData = await this.firstFomatting()
         let {member, mercenary, managerList} = await this.secondFomtting(firstData)
-        console.log("정회원", member)
-        console.log("용병", mercenary)
-        console.log("용병", managerList)
+
         this.$store.commit('onMemberList', member)
         this.$store.commit('onMercenaryList', mercenary)
         this.$store.commit('onManagerList', managerList)
@@ -151,13 +149,11 @@ export default {
             || 
             list[key].steamid == undefined && list[key].sex.includes('지인')
           ) {
-          mercenary.push(
-            {
-              discordid : list[key].discordid,
-              name : list[key].name,
-              join : list[key].join
-            }
-          ) 
+          mercenary.push({
+            discordid : list[key].discordid,
+            name : list[key].name,
+            join : list[key].join
+          }) 
         } else if(list[key].manager === "TRUE" || list[key].master === 'TRUE') {
           managerList.push({
             age : list[key].age,
