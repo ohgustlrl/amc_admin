@@ -2,7 +2,7 @@
   <v-container fluid :class="[isDashBoard ? 'my-0 py-0 grey lighten-5' : '']">
     <AppBar />
       <v-main>
-        <router-view />
+        <router-view :memberListProps="memberList" />
       </v-main>
     <Footer />
   </v-container>
@@ -18,7 +18,7 @@ export default {
   name: 'MainPage',
   data() {
     return {
-      
+      memberList : []
     }
   },
   components: {
@@ -42,6 +42,7 @@ export default {
         const memberSnapShot = await getDocs(memberCol);
         const memebers = memberSnapShot.docs.map(doc => doc.data())  
         this.$store.commit('onMemberList', memebers)
+        this.memberList = this.$store.state.memberList
       } catch (error) {
         console.error(error)
       }

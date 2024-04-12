@@ -61,20 +61,20 @@
 <script>
 export default {
   name : 'dashBoard',
+  props : ['memberListProps'],
   data() {
     return {
-      memberList : [],
       newMember : []
     }
   },
   computed : {
     total() {
-      let totlaLength = this.memberList.length
+      let totlaLength = this.memberListProps.length
       return totlaLength
     },
     maleOfTotal() {
       let maleArray = []
-      this.memberList.map(obj => {
+      this.memberListProps.map(obj => {
         if(obj.sex == '남') {
           maleArray.push(obj.name)
         }
@@ -83,7 +83,7 @@ export default {
     },
     feMaleOfTotal() {
       let feMaleArray = []
-      this.memberList.map(obj => {
+      this.memberListProps.map(obj => {
         if(obj.sex == '여') {
           feMaleArray.push(obj.name)
         }
@@ -91,13 +91,8 @@ export default {
       return feMaleArray.length
     },
   },
-  created() {
-    this.getMemberList()
-  },
   methods: {
-    getMemberList() {
-      this.memberList = this.$store.state.memberList
-    }
+
   }
 }
 </script>

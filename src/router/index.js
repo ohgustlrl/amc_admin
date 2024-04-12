@@ -26,7 +26,10 @@ const routes = [
       {
         path: '',
         name : 'DashBoard',
-        component : DashBoard
+        component : DashBoard,
+        porps: {
+          memberListProps : []
+        }
       },
       {
         path: '/memberlist',
