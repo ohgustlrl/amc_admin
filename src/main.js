@@ -8,7 +8,6 @@ import axios from 'axios'
 Vue.config.productionTip = false
 Vue.config.devtools = true
 Vue.prototype.$axios = axios
-// axios.defaults.baseURL = 'https://api.pubg.com/shards/steam/matches/'
 
 new Vue({
   vuetify,

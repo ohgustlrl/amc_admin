@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = `http://220.117.11.123:3000/`
+const baseUrl = `https://220.117.11.123:3000/`
 
 export const getAuthConfirm = async (userUID) => {
   try {
