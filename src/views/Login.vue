@@ -10,7 +10,7 @@
         class="mx-auto"
         width="100%"
         height="320px"
-        src="https://media.discordapp.net/attachments/485360498200805387/1116717050191159397/02-Yellow_Profile.gif?ex=661933cc&is=6606becc&hm=30c7c55971ebf0fc7f702cae83a0f36ff584f7b41b17f019bf2dbabf2d96efb5&=&format=webp"
+        src="../assets/02-Yellow_Profile.gif"
       ></v-img>
       <v-card-title>AMC ADMIN</v-card-title>
       <v-divider class="mx-4"></v-divider>
