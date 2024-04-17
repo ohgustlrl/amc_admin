@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = `https://khsserver.pe.kr/`
+const baseUrl = `http://khsserver.pe.kr/`
 
 export const getDiscordMemberListAPI = async () => {
   try {
