@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = `https://khsserver.pe.kr/`
+const baseUrl = `https://khsserver.pe.kr:3000/`
 
 export const getAuthConfirm = async (userUID) => {
   try {
