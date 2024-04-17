@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = `https://220.117.11.123:3000/`
+const baseUrl = `https://khsserver.pe.kr:3000/`
 
 export const getAccntIds = async (membersName) => {
   try {
