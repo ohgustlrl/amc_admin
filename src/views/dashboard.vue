@@ -133,7 +133,6 @@ export default {
     dayjs
   },
   created() {
-    this.newMember()
   },
   computed : {
     total() {
