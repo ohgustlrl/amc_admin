@@ -44,18 +44,48 @@
         </template>
         <template v-else-if="searchLoading == '1stFiltering'">
           <span>플레이 일자, 플레이 맵, 플레이 모드를 추출 중 입니다.</span>
+          <div class="text-center">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </template>
         <template v-else-if="searchLoading == '2stFiltering'">
           <span>게임의 모든 플레이어 정보를 추출 중 입니다.</span>
+          <div class="text-center">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </template>
         <template v-else-if="searchLoading == '3stFiltering'">
           <span>유저와 함께 플레이한 팀원 정보를 추출 중 입니다.</span>
+          <div class="text-center">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </template>
         <template v-else-if="searchLoading == '4stFiltering'">
           <span>추출 된 정보를 정리 중 입니다.</span>
+          <div class="text-center">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </template>
         <template v-else-if="searchLoading == '5stFiltering'">
           <span>이제 거의 다 됐습니다. 조금만 더 기다려 주세요.</span>
+          <div class="text-center">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </template>
       </v-overlay>
       <template>
