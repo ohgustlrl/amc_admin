@@ -316,18 +316,20 @@ export default {
           this.$store.commit('onMatchesData', response)
           this.$store.commit('onSearchedPage', searchedPageCommitData)
 
-          this.searchLoading = false
+          if(this.progressPercentage === 100) {
+            this.searchLoading = false
+            this.progressPercentage = 0;
+          }
+          
           let gameData = await this.filteredData()
           let teamMateArr = await this.filteredTeamMate()
           let steamIdNames = await this.findFilterName(teamMateArr)
           let fullData = await this.mergeData(gameData, steamIdNames)
           let itemData = await this.setFormattedData(fullData)
           this.playerData = itemData
+          
+          this.hideLoading()
 
-          if(this.progressPercentage === 100) {
-            this.hideLoading()
-            this.progressPercentage = 0;
-          }
 
         } catch (error) {
           console.error(error)
