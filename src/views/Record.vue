@@ -33,16 +33,7 @@
     </v-row>
     <v-expansion-panels>
       <v-overlay :class="isHide === false ? 'd-none' : ''">
-        <template v-if="!searchLoading">
-          <v-progress-circular
-            :size="50"
-            color="primary"
-            indeterminate
-          >
-          </v-progress-circular>
-          <span>데이터를 가져오고 있습니다.</span>
-        </template>
-        <template v-else>
+        <template v-if="searchLoading == 'downloading'">
           <span>매치 데이터를 조회 후 다운로드 중 입니다.</span>
           <v-progress-linear
             v-model="progressPercentage"
@@ -50,6 +41,21 @@
           >
             <strong>{{ progressPercentage }}%</strong>
           </v-progress-linear>
+        </template>
+        <template v-else-if="searchLoading == '1stFiltering'">
+          <span>플레이 일자, 플레이 맵, 플레이 모드를 추출 중 입니다.</span>
+        </template>
+        <template v-else-if="searchLoading == '2stFiltering'">
+          <span>게임의 모든 플레이어 정보를 추출 중 입니다.</span>
+        </template>
+        <template v-else-if="searchLoading == '3stFiltering'">
+          <span>유저와 함께 플레이한 팀원 정보를 추출 중 입니다.</span>
+        </template>
+        <template v-else-if="searchLoading == '4stFiltering'">
+          <span>추출 된 정보를 정리 중 입니다.</span>
+        </template>
+        <template v-else-if="searchLoading == '5stFiltering'">
+          <span>이제 거의 다 됐습니다. 조금만 더 기다려 주세요.</span>
         </template>
       </v-overlay>
       <template>
@@ -246,8 +252,6 @@ export default {
      * API 서버에 보내고, match의 상세정보를 받아오는 함수
      */
     async getLoopMatchesData() {
-      let isDataLoading = this.$store.state.isGetDataLoading
-      isDataLoading
       this.playerData = []
       let stateSearched = this.$store.state.searchedPages
       let page = this.page
@@ -259,8 +263,8 @@ export default {
         let itemData = await this.setFormattedData(fullData)
         this.playerData = itemData
       } else {
-        this.searchLoading = !this.searchLoading
         this.showLoading()
+        this.searchLoading = 'downloading'
         try {
           let allMatchData = {};
   
@@ -282,7 +286,7 @@ export default {
           this.$store.commit('onMatchesData', response)
           this.$store.commit('onSearchedPage', searchedPageCommitData)
 
-          this.searchLoading = !this.searchLoading
+          this.searchLoading = false
           let gameData = await this.filteredData()
           let teamMateArr = await this.filteredTeamMate()
           let steamIdNames = await this.findFilterName(teamMateArr)
@@ -297,7 +301,7 @@ export default {
 
         } catch (error) {
           console.error(error)
-          this.searchLoading = !this.searchLoading
+          this.searchLoading = false
           this.hideLoading()
         }
       }
@@ -308,6 +312,7 @@ export default {
      * 해당 필터링을 통해, 플레이 일자, map, mode를 확인할 수 있다.
      */
     async filteredData() {
+      this.searchLoading = '1stFiltering'
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       let dataArray = {}
@@ -334,6 +339,7 @@ export default {
      * 내부 주석들을 참고
      */
     async filteredTeamMate() {
+      this.searchLoading = '2stFiltering'
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       const rostersArray = {}
@@ -406,6 +412,7 @@ export default {
      * 담아서 다시 반환한다.
      */
     async findFilterName(userObj) {
+      this.searchLoading = '3stFiltering'
       const observerData = this.$store.state.matchesData[this.page - 1]
       const dataSet = JSON.parse(JSON.stringify(observerData))
       let participantList = []
@@ -456,7 +463,8 @@ export default {
      * 팀원정보가 들어있는 객체를 파라미터로 받고,
      * 두개의 데이터를 하나로 합쳐 반환한다.
      */
-    async mergeData(obj1, obj2) {      
+    async mergeData(obj1, obj2) {   
+      this.searchLoading = '4stFiltering'   
       for(const key in obj2.partiMemberNames) {
         obj1[key].team = obj2.partiMemberNames[key]
       }
@@ -477,6 +485,7 @@ export default {
      * 형태로 포매팅시켜서 반환하는 함수 
      */
     async setFormattedData(data) {
+      this.searchLoading = '5stFiltering'   
       const formattedData = []
 
       const objToArray = Object.entries(data)
@@ -503,6 +512,7 @@ export default {
           })
         }
       })
+      this.searchLoading = false   
       return formattedData
     },
 
