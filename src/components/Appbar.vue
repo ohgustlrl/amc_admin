@@ -12,7 +12,7 @@
         size="50"
       >
         <img
-          alt="Avatar"
+          alt="AMC_Clan_logo"
           src="../assets/logo.jpg"
         >
       </v-avatar>
@@ -33,16 +33,15 @@
               size="48"
             >
               <img
-                alt="Avatar"
-                :src=userInfo?.photoURL
+                alt="login_user_avatar"
+                :src=userAvatar
               >
             </v-avatar>
           </v-btn>
         </template>
         <v-card>
           <v-list-item-content class="justify-center">
-            <h3>{{ userInfo?.displayName + '님' }}</h3>
-            <p class="text-caption mt-1">{{ userInfo?.email }}</p>
+            <p>{{ userInfo?.global_name + '님' }}</p>
             <v-divider class="my-3" />
             <v-btn
               class="ma-2"
@@ -79,6 +78,7 @@ export default {
       drawer : false,
       userInfo : null,
       onDialog : false,
+      userAvatar : null,
     }
   },
   components: {
@@ -95,6 +95,11 @@ export default {
   methods: {
     getStateUserInfo() {
       this.userInfo = this.$store.state.userInfo
+
+      const userId = this.userInfo.id;
+      const avatarId = this.userInfo.avatar;
+      const avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.png`;
+      this.userAvatar = avatarUrl
     },
     //구글 OAUTH 로그아웃 한다. 
     async clickToLogout() {

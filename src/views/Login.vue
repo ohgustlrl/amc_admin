@@ -65,11 +65,10 @@
     >
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
-          죄송합니다.
+          로그인 실패
         </v-card-title>
         <v-card-text>
-          현재는 로그인이 불가능합니다.
-          관리자에게 문의해주세요.
+          {{ errorMessage }}
         </v-card-text>
 
         <v-divider></v-divider>
@@ -90,15 +89,7 @@
 </template>
 
 <script>
-
-import 
-{
-  getAuth,
-  GoogleAuthProvider, 
-  signInWithPopup,
-} from 'firebase/auth'
-import firebase from '../plugins/firebase'
-import { getAuthConfirm } from '../API/auth'
+import {getAuthConfirm} from '../API/auth'
 
 export default {
   name : 'Log-in',
@@ -106,53 +97,48 @@ export default {
     return {
       msgBox : false,
       errorBox : false,
+      userData : null,
+      errorMessage : null,
     }
   },
-  created() {
-    
-  },
-  unmounted() {
-
+  mounted() {
+    const code = this.$route.query.code;
+    if (code) {
+      this.getDiscordUser(code);
+    }
   },
   methods : {
-    //구글 OAUTH 로그인 한다. 
     async clickToLogin() {
-      const provider = new GoogleAuthProvider();
-      const auth = getAuth(firebase);
-      auth.languageCode = 'korean';
-      let googleUID
-      const saveUserInfo = (result) => {
-        return new Promise((resolve) => {
-          let userData = result.user.providerData[0]
+      // 디스코드 OAUTH 처리. 
+      const clientId = process.env.VUE_APP_CLIENT_ID;
+      const redirectUri = encodeURIComponent(process.env.VUE_APP_REDIRECT_URI_LOCAL); // 운영 시 process.env.VUE_APP_REDIRECT_URI <-로 교체
+      const scope = 'identify';
 
-          this.$store.commit('setUserInfo', userData)
-          resolve()
-        })
-      }
-
-       signInWithPopup(auth, provider)
-        .then((result) => {
-          googleUID = result.user.uid
-          saveUserInfo(result)
-        })
-        .then(() => {
-          getAuthConfirm(googleUID)
-            .then(res => {
-              if(res == 200) {
-                  this.$router.push('/home')
-                } else if(res == 531) {
-                  this.msgBox = true
-                } else {
-                  this.errorBox = true
-                }
-            })
-        })
-        .catch((err) => {
-          console.log(err)
-        })
+      const discordOAuthURL = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`
+      
+      window.location.href = discordOAuthURL;
     },
-  }
 
+    async getDiscordUser(code) {
+      try {
+        const result = await getAuthConfirm(code)
+        const status = result.status
+
+        if (status == 200) {
+          this.userData = result.data
+          this.$store.commit('setUserInfo', this.userData);
+          this.$router.push({
+            name : 'Home'
+          })
+        } else {
+          this.errorMessage = "로그인 실패"
+        }
+      } catch (error) {
+        this.errorBox = true;
+        this.errorMessage = '서버와 통신하는데 실패하였습니다. 잠시 후 다시 시도해 주세요.'
+      }
+    }
+  },
 }
 </script>
 

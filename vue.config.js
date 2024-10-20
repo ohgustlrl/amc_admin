@@ -13,7 +13,9 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api' : {
-        target: 'http://localhost:8080/'
+        target: 'https://khsserver.pe.kr',
+        changeOrigin: true,
+        secure: false, // https에 대한 보안 검증 비활성화
       }
     }
   }

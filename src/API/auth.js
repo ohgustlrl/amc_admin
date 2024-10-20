@@ -1,11 +1,13 @@
 import axios from "axios";
 
-const baseUrl = `https://khsserver.pe.kr/`
+const server_base_url = process.env.VUE_APP_SERVER_BASE_URL
 
-export const getAuthConfirm = async (userUID) => {
+export const getAuthConfirm = async (authCode) => {
+  
   try {
-    const result = await axios.post(`${baseUrl}login`, {userUID : userUID})
-    return result.data.code
+    const result = await axios.post(`${server_base_url}api/auth/callBack`, {code: authCode})
+    
+    return result
   } catch (error) {
     console.error(error)
   } 
