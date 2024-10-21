@@ -1,23 +1,14 @@
 <template>
   <div>
     <v-overlay :class="isHide === false ? 'd-none' : ''">
-      <template v-if="!searchLoading">
+      <template>
         <v-progress-circular
           :size="50"
           color="primary"
           indeterminate
         >
         </v-progress-circular>
-        <span>데이터를 가져오고 있습니다.</span>
-      </template>
-      <template v-else>
-        <span>매치 데이터를 조회 후 다운로드 중 입니다.</span>
-        <v-progress-linear
-          v-model="progressPercentage"
-          height="25"
-        >
-          <strong>{{ progressPercentage }}%</strong>
-        </v-progress-linear>
+        <span>데이터를 조회중 입니다.</span>
       </template>
     </v-overlay>
     <v-banner
@@ -35,13 +26,14 @@
       </v-icon>
         일반회원 목록
     </v-banner>
-    <v-card-title>
+    <v-card-title class="d-flex-jc-between">
       <v-text-field
         v-model="search"
         append-icon="mdi-magnify"
         label="Search"
         single-line
         hide-details
+        clearable="true"
       ></v-text-field>
     </v-card-title>
     <v-data-table
@@ -59,13 +51,21 @@
         <v-toolbar
           flat
         >
-        <v-row>총 인원 : {{ memberList.length }}명</v-row>
+        <v-row>총 인원 : {{ totalMembers }}명</v-row>
           <v-spacer></v-spacer>
           <template class="d-flex flex-row justify-end pa-0">
             <v-col
-              class="d-flex flex-column mb-2"
+              class="d-flex"
               sm="2"
             >
+              <v-btn
+                depressed
+                color="primary"
+                class="mr-2"
+                dense
+              >
+                멤버 수동 업데이트
+              </v-btn>
               <v-select
                 v-model="rowPerList"
                 :items = "items"
@@ -84,8 +84,7 @@
       <v-pagination
         v-model="page"
         class="my-4"
-        :length="pageCount"
-        :total-visible="6"
+        :length="totalPages"
       ></v-pagination>
     </div>
   </div>
@@ -94,39 +93,38 @@
 <script>
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import firebase from '@/plugins/firebase'
-// import {getFirestore, doc, setDoc, deleteDoc} from 'firebase/firestore/lite'
-// import {getDiscordMemberListAPI} from '../../API/discord'
+import {getManualUpadteUserApi} from '../../API/member/getManualUpdateMemberList'
+import {getMemberListApi} from '../../API/member/getMemberList'
 import dayjs from 'dayjs'
 
 Vue.use(Vuex)
-Vue.config.devtools = true
 
 export default {
   name: "Member-list",
   component() {
     dayjs
   },
-  props: ['memberListProps'],
   data() {
     return {
       search: '',
       headers: [
-        { text: '닉네임', align: 'start', value: 'name' },
+        { text: '닉네임', align: 'start', value: 'nickName' },
         { text: '성별', align: 'start', value: 'sex' },
         { text: '나이',  align: 'start', value: 'age' },
-        { text: '스팀 아이디', align: 'start', value: 'steamid' },
-        { text: '디코ID', align:'start', value: 'discordid' },
-        { text: '수정/삭제', align: 'start',  value: 'actions', sortable: false },
+        { text: '스팀 아이디', align: 'start', value: 'steamNickname' },
+        { text: '디코ID', align:'start', value: 'discordId' },
+        { text: '서버 입장일', align: 'start',  value: 'joinedAt',},
       ],
-      items: ['5', '10', '15', '100'],
+      items: ['5', '10', '20', '50'],
       page: 1,
       pageCount: 0,
       itemsPerPage: 10,
       rowPerList: '10',
       searchLoading : false,
       isHide : false,
-
+      memberList : [],
+      totalMembers : 0,
+      totalPages : 0,
     };
   },
   computed: {
@@ -134,18 +132,36 @@ export default {
   },
 
   watch: {
+    rowPerList() {
+      this.getMemberList();
+    }
 
   },
   created() {
-    this.getMembers()
+    this.getMemberList()
   },
 
   mounted() {
   },
 
   methods: {
-    async getMembers() {
-      this.memberList = this.$store.state.memberList
+    async setManualUpdateMemberList() {
+      const result = await getManualUpadteUserApi();
+      console.log(result)
+    },
+
+    async getMemberList() {
+      let params = {
+        page : this.page,
+        limit : this.rowPerList,
+        search : this.search
+      }
+      const result = await getMemberListApi(params)
+
+      this.memberList = result.memberList;
+      this.totalPages = result.totalPages;
+      this.totalMembers = result.totalMembers
+      this.pageCount = result.currentPage;
     },
 
     showLoading() {
@@ -159,4 +175,11 @@ export default {
 </script>
 
 <style scoped>
+.d-flex-jc-between {
+  justify-content: space-between;
+}
+.w50p_and_non_felx {
+  width: 50%;
+  flex : initial;
+}
 </style>

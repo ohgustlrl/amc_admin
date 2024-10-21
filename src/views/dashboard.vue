@@ -148,8 +148,6 @@ export default {
     async getDashboardData () {
       const result = await getDashboardApi();
 
-      console.log(result)
-
       this.memberCount.total = result ? result.totalMembers : 0; 
       this.memberCount.man = result ? result.maleMembers : 0;
       this.memberCount.woman = result ? result.femaleMembers : 0;
