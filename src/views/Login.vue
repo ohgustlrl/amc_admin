@@ -111,7 +111,11 @@ export default {
     async clickToLogin() {
       // 디스코드 OAUTH 처리. 
       const clientId = process.env.VUE_APP_CLIENT_ID;
-      const redirectUri = encodeURIComponent(process.env.VUE_APP_REDIRECT_URI_LOCAL); // 운영 시 process.env.VUE_APP_REDIRECT_URI <-로 교체
+      const redirectUri = encodeURIComponent(
+        process.env.NODE_ENV === 'production' 
+          ? process.env.VUE_APP_REDIRECT_URI
+          : process.env.VUE_APP_REDIRECT_URI_LOCAL
+        ); // 운영 시 process.env.VUE_APP_REDIRECT_URI <-로 교체
       const scope = 'identify';
 
       const discordOAuthURL = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`
