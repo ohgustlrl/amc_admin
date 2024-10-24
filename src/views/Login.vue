@@ -127,9 +127,7 @@ export default {
         if (status == 200) {
           this.userData = result.data
           this.$store.commit('setUserInfo', this.userData);
-          this.$router.push({
-            name : 'Home'
-          })
+          this.$router.push('/Home').then(() => {this.$nextTick(() => {})});
         } else {
           this.errorMessage = "로그인 실패"
         }

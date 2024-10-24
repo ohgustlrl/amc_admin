@@ -1,9 +1,9 @@
 <template>
-  <v-container fluid :class="[isDashBoard ? 'my-0 py-0 grey lighten-5' : '']">
+  <v-container fluid>
     <AppBar />
-      <v-main>
-        <router-view />
-      </v-main>
+    <v-main>
+      <router-view />
+    </v-main>
     <Footer />
   </v-container>
 </template>
@@ -30,9 +30,7 @@ export default {
   created() {
   },
   computed: {
-    isDashBoard() {
-      return this.$route.name == 'DashBoard' ? true : false
-    }
+
   },
   methods: {
     showLoading() {
@@ -46,5 +44,8 @@ export default {
 </script>
 
 <style scoped>
+  main {
+    padding: 0 !important;
+  }
 
 </style>

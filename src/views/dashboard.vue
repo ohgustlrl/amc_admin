@@ -1,117 +1,133 @@
 <template>
-  <v-container fluid class="grey lighten-5 h-80vh">
-    <v-row class="justify-center">
-      <v-col md="5">
-        <v-card
-          class="pa-0 mb-3"
-          outlined
-          tile
-        >
-          <v-card-title class="d-flex justify-space-between blue lighten-2 pa-3">
-            <p class="text-h6 ma-0">클랜원 현황</p>
-            <span class="text-subtitle-2 text--secondary">업데이트 일자 {{ date + ' 06:00 기준' }}</span>
-          </v-card-title>
-          <v-card-text height="20px" class="d-flex pa-3 justify-space-between">
-            <p class="d-flex align-center ma-0">
-              <v-icon color="black">mdi-account-group</v-icon>
-              <span class="text-body-1 text-right ml-2 font-weight-bold">{{ memberCount.total }} 명</span>
-            </p>
-            <p class="d-flex align-center ma-0">
-              <v-icon color="primary">mdi-human-male</v-icon>
-              <span class="text-body-1 text-right font-weight-bold">{{ memberCount.man }} 명</span>
-            </p>
-            <p class="d-flex align-center ma-0">
-              <v-icon color="pink">mdi-human-female</v-icon>
-              <span class="text-body-1 text-right font-weight-bold">{{ memberCount.woman }} 명</span>
-            </p>
-          </v-card-text>
-        </v-card>
+  <v-container>
+    <v-row class="flex-child">
+      <v-col
+        class="d-flex" 
+        md="5"
+      >
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <v-card
+              class="pa-0"
+              tile
+              elevation="2"
+            >
+              <v-card-title class="d-flex justify-space-between blue lighten-2 pa-3">
+                <p class="text-h6 ma-0">클랜원 현황</p>
+                <p class="text-subtitle-2 text--secondary">업데이트 일자 {{ date + ' 06:00 기준' }}</p>
+              </v-card-title>
+              <v-card-text height="20px" class="d-flex pa-3 justify-space-between">
+                <p class="d-flex align-center ma-0">
+                  <v-icon color="black">mdi-account-group</v-icon>
+                  <span class="text-body-1 text-right ml-2 font-weight-bold">{{ memberCount.total }} 명</span>
+                </p>
+                <p class="d-flex align-center ma-0">
+                  <v-icon color="primary">mdi-human-male</v-icon>
+                  <span class="text-body-1 text-right font-weight-bold">{{ memberCount.man }} 명</span>
+                </p>
+                <p class="d-flex align-center ma-0">
+                  <v-icon color="pink">mdi-human-female</v-icon>
+                  <span class="text-body-1 text-right font-weight-bold">{{ memberCount.woman }} 명</span>
+                </p>
+              </v-card-text>
+            </v-card>
+          </v-col>  
+          <v-col>  
+            <v-card
+              class="pa-0"
+              elevation="2"
+              tile
+            >
+              <v-card-title class="d-flex justify-space-between blue lighten-2 pa-3">
+                <p class="text-h6 ma-0">미가입자 리스트<span class="caption"> ( 서버입장은 했으나 가입절차를 밟지 않은 인원 - 신입채널에서 확인 가능 )</span></p>
+                <span class="text-subtitle-2 text--secondary">{{ date + ' 06:00 기준' }}</span>
+              </v-card-title>
+              <v-simple-table
+                fixed-header
+                dense
+              >
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-center">
+                        닉네임
+                      </th>
+                      <th class="text-center">
+                        나이
+                      </th>
+                      <th class="text-center">
+                        스팀아이디
+                      </th>
+                      <th class="text-center">
+                        입장일
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="list in notJoinMember"
+                      :key="list.id"
+                    >
+                      <td>{{ list.nickName }}</td>
+                      <td>{{ list.age }}</td>
+                      <td>{{ list.steamNickname }}</td>
+                      <td>{{ dayjs(list.joinedAt).format('YYYY.MM.DD HH:mm') }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col
+        cols="7"
+      >
         <v-card
           class="pa-0"
-          outlined
+          elevation="2"
           tile
         >
           <v-card-title class="d-flex justify-space-between blue lighten-2 pa-3">
             <p class="text-h6 ma-0">신규 클랜원</p>
             <span class="text-subtitle-2 text--secondary">업데이트 일자 {{ date + ' 06:00 기준' }}</span>
           </v-card-title>
-            <template v-if="newMember.length > 0">
-              <v-card-text class="d-flex pa-3 justify-space-between" v-for="list of newMember" :key="list.id">
-                  <p class="ma-0 text-left">
-                    <span class="text-body-1 font-weight-bold mr-1">닉네임 :</span>
-                    <span class="text-body-1 font-weight-bold">{{ list.nickName }}</span>
-                  </p>
-                  <p class="ma-0 text-left">
-                    <span class="text-body-1 font-weight-bold mr-1">나이 :</span>
-                    <span class="text-body-1 font-weight-bold">{{ list.age }}</span>
-                  </p>
-                  <p class="ma-0 text-left">
-                    <span class="text-body-1 font-weight-bold mr-1">스팀아이디 :</span>
-                    <span class="text-body-1 font-weight-bold">{{ list.steamNickname }}</span>
-                  </p>
-                  <p class="ma-0 text-left">
-                    <span class="text-body-1 font-weight-bold mr-1">입장일 :</span> 
-                    <span class="text-body-1 font-weight-bold">{{ dayjs(list.joinedAt).format('YYYY.MM.DD HH:mm') }}</span>
-                  </p>
-              </v-card-text>
+          <v-simple-table
+            dense
+          >
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-center">
+                    닉네임
+                  </th>
+                  <th class="text-center">
+                    나이
+                  </th>
+                  <th class="text-center">
+                    스팀아이디
+                  </th>
+                  <th class="text-center">
+                    입장일
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="list in newMember"
+                  :key="list.id"
+                >
+                  <td>{{ list.nickName }}</td>
+                  <td>{{ list.age }}</td>
+                  <td>{{ list.steamNickname }}</td>
+                  <td>{{ dayjs(list.joinedAt).format('YYYY.MM.DD HH:mm') }}</td>
+                </tr>
+              </tbody>
             </template>
-            <template v-else>
-              <v-card-text class="d-flex pa-3 justify-space-between">
-                  <p class="ma-0">
-                    <span class="text-body-1 font-weight-bold">신규 멤버가 없습니다.</span> 
-                  </p>
-              </v-card-text>
-            </template>
+          </v-simple-table>
         </v-card>
-        <!-- <v-card
-          class="pa-0 mb-3"
-          outlined
-          tile
-        >
-          <v-card-title class="d-flex justify-space-between blue lighten-2 pa-3">
-            <p class="text-h6 ma-0">용병 현황</p>
-            <span class="text-subtitle-2 text--secondary">업데이트 일자 {{ date }}</span>
-          </v-card-title>
-          <template>
-          </template>
-          <template v-if="this.mercenaryListProps.length > 0">
-            <v-card-text 
-              height="20px" 
-              class="d-flex pa-3 justify-space-between"
-              v-for="(list, index) in this.mercenaryListProps" :key="list.name"
-            >
-              <p class="d-flex align-center ma-0">
-                <span color="black">닉네임 : </span>
-                <span class="text-body-1 text-right ml-2 font-weight-bold">{{ list.name }}</span>
-              </p>
-              <p class="d-flex align-center ma-0">
-                <span color="primary">서버 입장일 : </span>
-                <span class="text-body-1 text-right ml-2 font-weight-bold">{{ list.join }}</span>
-              </p>
-              <p class="d-flex align-center ma-0">
-                <span color="pink">체류일</span>
-                <span class="text-body-1 text-right ml-2 font-weight-bold">{{ visitDate[index] }} 일</span>
-              </p>
-            </v-card-text>
-          </template>
-          <template v-else>
-            <v-card-text 
-              height="20px" 
-              class="d-flex pa-3 justify-space-between"
-            >
-              <span class="text-body-1 text-right ml-2 font-weight-bold">
-                현재 활동 중인 용병이 없습니다.
-              </span>
-            </v-card-text>
-          </template>
-        </v-card> -->
-      </v-col>
-      <!-- <v-col md="7">
-      </v-col> -->
-    </v-row>
-    <v-row class="justify-center">
-      <v-col md="5">
-        
       </v-col>
     </v-row>
   </v-container>
@@ -132,7 +148,8 @@ export default {
         man : null,
         woman : null
       },
-      newMember : []
+      newMember : [],
+      notJoinMember : [],
     }
   },
   component() {
@@ -152,6 +169,7 @@ export default {
       this.memberCount.man = result ? result.maleMembers : 0;
       this.memberCount.woman = result ? result.femaleMembers : 0;
       this.newMember = result ? result.newMembers : [];
+      this.notJoinMember = result ? result.notJoinMember : [];
     }
   }
 }
@@ -175,5 +193,9 @@ export default {
   }
   .width120 {
     width: 120px;
+  }
+
+  li::marker {
+    display: none;
   }
 </style>

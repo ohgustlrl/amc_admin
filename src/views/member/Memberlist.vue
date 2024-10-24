@@ -61,8 +61,9 @@
               <v-btn
                 depressed
                 color="primary"
-                class="mr-2"
+                class="mr-3"
                 dense
+                @click="setManualUpdateMemberList"
               >
                 멤버 수동 업데이트
               </v-btn>
@@ -87,6 +88,31 @@
         :length="totalPages"
       ></v-pagination>
     </div>
+    <v-row justify="center">
+      <v-dialog
+        v-model="dialog"
+        persistent
+        max-width="290"
+      >
+        <v-card>
+          <v-card-title class="text-h5">
+            안내
+          </v-card-title>
+          <v-card-text v-if="dialogCode">에러 코드 : {{ dialogCode }}</v-card-text>
+          <v-card-text>{{ dialogMsg }}</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="dialog = false"
+            >
+              확인
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
 </template>
 
@@ -125,6 +151,9 @@ export default {
       memberList : [],
       totalMembers : 0,
       totalPages : 0,
+      dialog : false,
+      dialogCode : null,
+      dialogMsg : null
     };
   },
   computed: {
@@ -134,11 +163,13 @@ export default {
   watch: {
     rowPerList() {
       this.getMemberList();
+    },
+    page() {
+      this.getMemberList();
     }
-
   },
   created() {
-    this.getMemberList()
+    this.getMemberList();
   },
 
   mounted() {
@@ -147,13 +178,23 @@ export default {
   methods: {
     async setManualUpdateMemberList() {
       const result = await getManualUpadteUserApi();
-      console.log(result)
+
+      if(result.status == 200) {
+        this.dialog = true;
+        this.dialogMsg = result.msg
+        this.getMemberList();
+      } else {
+        this.dialog = true;
+        this.dialogCode = result.code;
+        this.dialogMsg = result.msg;
+      }
     },
 
     async getMemberList() {
+      this.showLoading();
       let params = {
         page : this.page,
-        limit : this.rowPerList,
+        limit : Number(this.rowPerList),
         search : this.search
       }
       const result = await getMemberListApi(params)
@@ -162,6 +203,7 @@ export default {
       this.totalPages = result.totalPages;
       this.totalMembers = result.totalMembers
       this.pageCount = result.currentPage;
+      this.hideLoading();
     },
 
     showLoading() {
