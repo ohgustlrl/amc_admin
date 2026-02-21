@@ -103,8 +103,9 @@ export default {
   },
   mounted() {
     const code = this.$route.query.code;
+    const currentRedirectUri = window.location.origin + window.location.pathname;
     if (code) {
-      this.getDiscordUser(code);
+      this.getDiscordUser(code, currentRedirectUri);
     }
   },
   methods : {
@@ -123,9 +124,9 @@ export default {
       window.location.href = discordOAuthURL;
     },
 
-    async getDiscordUser(code) {
+    async getDiscordUser(code, currentRedirectUri) {
       try {
-        const result = await getAuthConfirm(code)
+        const result = await getAuthConfirm(code, currentRedirectUri)
         const status = result.status
 
         if (status == 200) {
