@@ -103,7 +103,7 @@ export default {
   },
   mounted() {
     const code = this.$route.query.code;
-    const currentRedirectUri = window.location.origin + window.location.pathname;
+    const currentRedirectUri = (window.location.origin + window.location.pathname).replace(/\/$/, "");
     if (code) {
       this.getDiscordUser(code, currentRedirectUri);
     }
